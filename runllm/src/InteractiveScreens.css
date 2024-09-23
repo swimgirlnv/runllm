@@ -1,0 +1,42 @@
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100vh;
+    background-color: #e0e0e0;
+    position: relative;
+  }
+  
+  .screen {
+    background-color: #c1e0b4;
+    border: 2px solid #999;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .left-screen {
+    width: 20%;
+    height: 30vh;
+  }
+  
+  .center-screen {
+    width: 40%;
+    height: 50vh;
+  }
+  
+  .right-screen {
+    width: 15%;
+    height: 25vh;
+  }
+  
+  .interactive-area {
+    width: 100%;
+    height: 100%;
+    border: none;
+    resize: none;
+    padding: 10px;
+    font-size: 16px;
+    outline: none;
+    background: transparent;
+  }
