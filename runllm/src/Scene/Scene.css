@@ -1,0 +1,104 @@
+/* Main room container */
+.room {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100vw;
+    height: 100vh;
+    background-color: #dcdcdc; /* Light gray background for the room */
+    position: relative;
+  }
+  
+  /* Poster section */
+  .poster {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 150px;
+  }
+  
+  .poster-image {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Main monitor container */
+  .monitor-container {
+    display: flex;
+    align-items: flex-end;
+    margin-top: 100px; /* Adjust based on room height */
+    gap: 20px; /* Space between the devices */
+  }
+  
+  /* Small monitor */
+  .small-monitor {
+    width: 150px;
+    height: 100px;
+    background-color: #b7d580; /* Light green background */
+    border: 2px solid #999;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+  
+  /* Large monitor */
+  .large-monitor {
+    width: 300px;
+    height: 180px;
+    background-color: #b7d580; /* Light green background */
+    border: 2px solid #999;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Sticky notes on the monitors */
+  .sticky {
+    width: 30px;
+    height: 30px;
+    background-color: #f0f0b0; /* Pale yellow sticky note color */
+    position: absolute;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .left-sticky {
+    left: -35px;
+  }
+  
+  .right-sticky {
+    right: -35px;
+  }
+  
+  /* Adjust sticky positions */
+  .sticky:nth-child(1) {
+    top: 10px;
+  }
+  
+  .sticky:nth-child(2) {
+    top: 50px;
+  }
+  
+  .sticky:nth-child(3) {
+    top: 10px;
+  }
+  
+  .sticky:nth-child(4) {
+    top: 50px;
+  }
+  
+  .sticky:nth-child(5) {
+    top: 90px;
+  }
+  
+  /* Side device */
+  .side-device {
+    width: 50px;
+    height: 80px;
+    background-color: #b7d580; /* Light green background */
+    border: 2px solid #999;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
