@@ -1,31 +1,25 @@
 import React from 'react';
-import './Scene.css'; // Ensure to create this CSS file for styles
+import LeftScreen from '../InteractiveScreens/LeftScreen';
+import CenterScreen from '../InteractiveScreens/CenterScreen';
+import RightScreen from '../InteractiveScreens/RightScreen';
+import './Scene.css';
 
-const Scene = () => {
+const Scene = ({ onMessageSend }) => {
   return (
     <div className="room">
-      <div className="poster">
-        <img
-          src="https://i.imgur.com/nB9jIUp.png"
-          alt="Dolphin Poster"
-          className="poster-image"
-        />
+      {/* Left screen overlaying the background monitor */}
+      <div className="overlay left-screen-overlay">
+        <LeftScreen onMessageSend={onMessageSend} />
       </div>
-      <div className="monitor-container">
-        <div className="small-monitor">
-          {/* Content for the small monitor can go here */}
-        </div>
-        <div className="large-monitor">
-          {/* Content for the large monitor can go here */}
-          <div className="sticky left-sticky"></div>
-          <div className="sticky left-sticky"></div>
-          <div className="sticky right-sticky"></div>
-          <div className="sticky right-sticky"></div>
-          <div className="sticky right-sticky"></div>
-        </div>
-        <div className="side-device">
-          {/* Content for the side device can go here */}
-        </div>
+
+      {/* Center screen overlaying the background monitor */}
+      <div className="overlay center-screen-overlay">
+        <CenterScreen onMessageSend={onMessageSend} />
+      </div>
+
+      {/* Right screen overlaying the background device */}
+      <div className="overlay right-screen-overlay">
+        <RightScreen onMessageSend={onMessageSend} />
       </div>
     </div>
   );

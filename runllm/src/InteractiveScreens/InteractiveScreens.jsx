@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './InteractiveScreens.css'; // Keep your styling here
+import './InteractiveScreens.css';
 
 const InteractiveScreens = ({ onMessageSend }) => {
   const [leftMessages, setLeftMessages] = useState([]);
@@ -47,11 +47,12 @@ const InteractiveScreens = ({ onMessageSend }) => {
 
   return (
     <div className="container">
+      {/* Left screen for Alice */}
       <div className="screen left-screen">
         <div className="chat-log">{renderMessages(leftMessages)}</div>
         <input
           type="text"
-          placeholder="Type a message..."
+          placeholder="Type a message to Alice..."
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.target.value) {
               handleSendMessage('left', e.target.value);
@@ -61,11 +62,12 @@ const InteractiveScreens = ({ onMessageSend }) => {
         />
       </div>
 
+      {/* Center screen for Alice, Bob, and Charlie */}
       <div className="screen center-screen">
         <div className="chat-log">{renderMessages(centerMessages)}</div>
         <input
           type="text"
-          placeholder="Type a message..."
+          placeholder="Type a message to Alice and Bob..."
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.target.value) {
               handleSendMessage('center', e.target.value);
@@ -75,11 +77,12 @@ const InteractiveScreens = ({ onMessageSend }) => {
         />
       </div>
 
+      {/* Right screen for Bob */}
       <div className="screen right-screen">
         <div className="chat-log">{renderMessages(rightMessages)}</div>
         <input
           type="text"
-          placeholder="Type a message..."
+          placeholder="Type a message to Bob..."
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.target.value) {
               handleSendMessage('right', e.target.value);

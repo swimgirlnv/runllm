@@ -1,0 +1,46 @@
+/* RightScreen.css */
+
+/* Container for the right screen */
+.right-screen {
+    width: 8vw;
+    height: 18vh;
+    background-color: #b7d580; /* Light green background */
+    border: 2px solid #999;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px;
+    position: absolute;
+    right: 10vw; /* Position right screen correctly */
+    bottom: 20vh;
+    overflow: hidden;
+  }
+  
+  /* Chat log container */
+  .chat-log {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 5px;
+    padding: 5px;
+    background-color: #e6e6e6;
+    border-radius: 3px;
+  }
+  
+  /* Individual message styles */
+  .message.user {
+    color: #004d00; /* User messages in a dark green */
+  }
+  
+  .message.assistant {
+    color: #1a1aff; /* Assistant messages in blue */
+  }
+  
+  /* Input field styling */
+  input {
+    border: 1px solid #999;
+    padding: 5px;
+    border-radius: 3px;
+    outline: none;
+  }
+  

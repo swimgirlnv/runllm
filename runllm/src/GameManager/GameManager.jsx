@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
-import InteractiveScreens from '../InteractiveScreens/InteractiveScreens';
+import React from 'react';
+import Scene from '../Scene/Scene';
 
-// URLs for backend endpoints
 const ALICE_API_URL = 'http://localhost:5001/api/alice';
 const BOB_API_URL = 'http://localhost:5001/api/bob';
 
-// Function to call the backend and get responses from Alice or Bob
 const sendMessageToAssistant = async (assistant, message) => {
   const url = assistant === 'alice' ? ALICE_API_URL : BOB_API_URL;
   try {
@@ -24,25 +22,24 @@ const sendMessageToAssistant = async (assistant, message) => {
 };
 
 const GameManager = () => {
-  // Handle message sending logic to either Alice or Bob
   const handleMessageSend = async (screen, message) => {
-    let assistant;
-    // Assign assistants based on which screen is used
     if (screen === 'left') {
-      assistant = 'alice';
+      return await sendMessageToAssistant('alice', message);
     } else if (screen === 'center') {
-      assistant = 'bob';
+      const response = message.startsWith('Alice:')
+        ? await sendMessageToAssistant('alice', message.replace('Alice:', ''))
+        : await sendMessageToAssistant('bob', message.replace('Bob:', ''));
+      return response;
+    } else if (screen === 'right') {
+      return await sendMessageToAssistant('bob', message);
     } else {
       return 'No specific assistant for this screen.';
     }
-
-    // Get the response from the backend
-    return await sendMessageToAssistant(assistant, message);
   };
 
   return (
     <div className="game-manager">
-      <InteractiveScreens onMessageSend={handleMessageSend} />
+      <Scene onMessageSend={handleMessageSend} />
     </div>
   );
 };
