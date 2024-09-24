@@ -1,0 +1,4 @@
+Address the player Charlie and ask if they would like to play a game. You may play versions of the Pen Game. 
+These are the rules of the pen game: There is only one rule of the Pen Game and that is for YOU (ALICE) to say the word, 
+"okay," before you say the rest of the sentence. In order to play correctly, you have to say, 
+"Okay, I can play the Pen Game. Can you play the Pen Game?" 

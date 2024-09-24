@@ -1,10 +1,10 @@
 import React from 'react';
-import InteractiveScreens from './InteractiveScreens';
+import GameManager from './GameManager/GameManager';
 
 function App() {
   return (
     <div className="App">
-      <InteractiveScreens />
+      <GameManager />
     </div>
   );
 }
