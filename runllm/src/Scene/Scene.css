@@ -9,15 +9,19 @@
   }
   
   /* Overlay screens positioned to match the background image monitors */
-  .overlay {
+  /* .overlay {
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
-  }
+  } */
   
   /* Positioning for the left screen (small monitor) */
   .left-screen-overlay {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 22.5vw; /* Adjust this to match the small left monitor */
     height: 25vh;
     top: 59vh; /* Fine-tune this to position on the monitor */
@@ -27,19 +31,28 @@
   
   /* Positioning for the center screen (large monitor) */
   .center-screen-overlay {
-    width: 42vw; /* Adjust to fit the large center monitor */
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 43vw; /* Adjust to fit the large center monitor */
     height: 40vh;
-    top: 49vh; /* Adjust this value to align with the large monitor */
-    left: 2vw; /* Adjust left positioning */
+    top: 28.5vh; /* Adjust this value to align with the large monitor */
+    left: 32vw; /* Center the large screen */
+    /* bottom: 20vh; */
     pointer-events: auto;
   }
   
   /* Positioning for the right screen (small side device) */
   .right-screen-overlay {
-    width: 6vw; /* Adjust to match the right small monitor */
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 8vw; /* Adjust to match the right small monitor */
     height: 18vh;
-    top: 88vh; /* Align to the right device */
-    right:1.5vw; /* Adjust right to position correctly */
+    top: 67vh; /* Align to the right device */
+    right:12vw; /* Adjust right to position correctly */
     pointer-events: auto;
   }
   

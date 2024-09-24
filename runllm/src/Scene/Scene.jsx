@@ -8,17 +8,17 @@ const Scene = ({ onMessageSend }) => {
   return (
     <div className="room">
       {/* Left screen overlaying the background monitor */}
-      <div className="overlay left-screen-overlay">
+      <div className="left-screen-overlay">
         <LeftScreen onMessageSend={onMessageSend} />
       </div>
 
       {/* Center screen overlaying the background monitor */}
-      <div className="overlay center-screen-overlay">
+      <div className="center-screen-overlay">
         <CenterScreen onMessageSend={onMessageSend} />
       </div>
 
       {/* Right screen overlaying the background device */}
-      <div className="overlay right-screen-overlay">
+      <div className="right-screen-overlay">
         <RightScreen onMessageSend={onMessageSend} />
       </div>
     </div>
