@@ -1,4 +1,3 @@
-import React from 'react';
 
 const ALICE_API_URL = 'http://localhost:5001/api/alice';
 const BOB_API_URL = 'http://localhost:5001/api/bob';

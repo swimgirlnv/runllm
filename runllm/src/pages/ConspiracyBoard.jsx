@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Draggable from 'react-draggable';
-import {ChatDrawer} from '../components/ChatDrawer';
 
 function ConspiracyBoard() {
     // State for board nodes
@@ -12,7 +11,7 @@ function ConspiracyBoard() {
 
     const [activeNode, setActiveNode] = useState(null); // Currently selected node
     const [chatMessages, setChatMessages] = useState([]); // Chat log
-
+    console.log(chatMessages);
     // Handle clicking a node
     const handleNodeClick = (node) => {
         if (!node.unlocked) return; // Ignore locked nodes
