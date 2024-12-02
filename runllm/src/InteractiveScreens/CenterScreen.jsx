@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './CenterScreen.css'; // Create or adjust the CSS for this screen if needed
 
 const CenterScreen = ({ onMessageSend }) => {
   const [messages, setMessages] = useState([]);

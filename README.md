@@ -11,5 +11,5 @@ in seperate terminal:
 - `cd runllm-backend`
 - `npm install`
 - `node server.mjs` (backend)
-- for successful run should say server is running on http://localhost:5001
+- for successful run should say server is running on http://localhost:5002
 - NOTE: you will need to `touch .env` in runllm-backend root and add in `REACT_APP_OPENAI_API_KEY='your_openai_key'` for OpenAI assistant calls to work.

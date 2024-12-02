@@ -5,12 +5,15 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { OpenAI } from 'openai';
+import axios from 'axios';
+
 
 // Check if the API key is loaded correctly
-// console.log('Loaded API Key:', process.env.REACT_APP_OPENAI_API_KEY); // This line helps debug if the key is loaded
+// console.log('Loaded API Key:', process.env.REACT_APP_OPENAI_API_KEY);
 
 import alicePrompt from './content/alicePrompt.mjs';
 import bobPrompt from './content/bobPrompt.mjs';
+import levelOnePrompt from './content/levelone.mjs';
 
 const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -23,6 +26,7 @@ const port = 5001;
 const assistants = {
   alice: [...alicePrompt], // Use Alice's prompt file
   bob: [...bobPrompt],     // Use Bob's prompt file
+  levelOne: [...levelOnePrompt],
 };
 
 app.use(cors());
@@ -81,6 +85,30 @@ app.post('/api/bob', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while processing Bob\'s response.' });
   }
 });
+
+app.post('/api/generate-puzzle', async (req, res) => {
+  try {
+
+    // Generate response from OpenAI
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4', // Choose the appropriate model
+      messages: assistants.levelOne,
+    });
+
+    const aiResponse = response.choices[0].message.content;
+
+    // Add assistant response to conversation history
+    assistants.levelOne.push({ role: 'assistant', content: aiResponse });
+
+    // Send back the assistant's response
+    res.json({ response: aiResponse });
+  } catch (error) {
+    console.error('Error in level one:', error);
+    res.status(500).json({ error: 'An error occurred while processing level one\'s response.' });
+  }
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

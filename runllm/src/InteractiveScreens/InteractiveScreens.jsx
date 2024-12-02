@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './InteractiveScreens.css';
 
 const InteractiveScreens = ({ onMessageSend }) => {
   const [leftMessages, setLeftMessages] = useState([]);

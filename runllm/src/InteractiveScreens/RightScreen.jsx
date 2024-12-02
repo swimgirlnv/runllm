@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './RightScreen.css'; // Create or adjust the CSS for this screen if needed
 
 const RightScreen = ({ onMessageSend }) => {
   const [messages, setMessages] = useState([]);
