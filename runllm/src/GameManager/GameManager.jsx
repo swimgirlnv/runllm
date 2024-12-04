@@ -1,6 +1,6 @@
 
-const ALICE_API_URL = 'http://localhost:5001/api/alice';
-const BOB_API_URL = 'http://localhost:5001/api/bob';
+const ALICE_API_URL = 'http://localhost:8080/api/alice';
+const BOB_API_URL = 'http://localhost:8080/api/bob';
 
 export const sendMessageToAssistant = async (assistant, message) => {
   const url = assistant === 'alice' ? ALICE_API_URL : BOB_API_URL;
@@ -21,7 +21,7 @@ export const sendMessageToAssistant = async (assistant, message) => {
 
 export const generatePuzzle = async (message) => {
   try {
-      const response = await fetch('http://localhost:5001/api/generate-puzzle', {
+      const response = await fetch('http://localhost:8080/api/generate-puzzle', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

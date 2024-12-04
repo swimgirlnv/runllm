@@ -7,7 +7,6 @@ import { generatePuzzle } from "../GameManager/GameManager"; // Import generateP
 import RoomModel from "../components/RoomModel";
 import { sendMessageToAssistant } from "../GameManager/GameManager";
 
-
 function MainScene() {
   const [chatMessages, setChatMessages] = useState([]); // Chat messages
   const [activeNode, setActiveNode] = useState(null); // Currently selected node
