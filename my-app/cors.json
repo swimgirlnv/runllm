@@ -1,0 +1,8 @@
+[
+    {
+      "origin": ["http://localhost:5173", "https://runllm.vercel.app/"],
+      "method": ["GET"],
+      "maxAgeSeconds": 3600,
+      "responseHeader": ["Content-Type", "Authorization"]
+    }
+  ]
