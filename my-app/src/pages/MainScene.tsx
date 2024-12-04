@@ -112,6 +112,9 @@ const [turingTestIncorrectAnswers, setTuringTestIncorrectAnswers] = useState<str
     },
   ]);
 
+  console.log("[SYSTEM]: ", captchaCompleted, turingTestsPassed, turingTestCorrectAnswer, turingTestIncorrectAnswers);
+
+
   const CAPTCHA_ZONE = {
       id: 'captchaZone',
       position: [26.0, 2.5, -3] as [number, number, number],
@@ -499,7 +502,7 @@ const [turingTestIncorrectAnswers, setTuringTestIncorrectAnswers] = useState<str
         isOpen={showTuringTestModal}
         question={turingTestQuestion}
         options={turingTestOptions}
-        correctIndex={turingTestCorrectIndex}
+        correctIndex={turingTestCorrectIndex ?? 0}
         onClose={() => setShowTuringTestModal(false)}
         onComplete={handleTuringTestCompletion}
       />

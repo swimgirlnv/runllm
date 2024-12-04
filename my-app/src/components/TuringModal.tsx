@@ -47,7 +47,6 @@ const TuringTestModal: React.FC<TuringTestModalProps> = ({
         zIndex: 10,
       }}
     >
-      <h2>Turing Test Challenge</h2>
       <p>{question}</p>
       <div>
         {options.map((option, index) => (
