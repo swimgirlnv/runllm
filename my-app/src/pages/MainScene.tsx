@@ -127,7 +127,6 @@ const MainScene: React.FC = () => {
       <Canvas shadows camera={{ position: [0, 3, 6], fov: 60 }} style={{ height: '100vh', width: '100vw' }}>
         <ambientLight intensity={0.1} />
         <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
-
         <RoomModel position={[-3, -8, -3.5]} scale={[0.3, 0.3, 0.3]} rotation={[0, Math.PI / 2, 0]} />
 
         <Monitor
