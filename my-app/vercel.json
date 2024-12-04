@@ -1,0 +1,19 @@
+{
+    "rewrites": [
+      {
+        "source": "/room3.glb",
+        "destination": "/public/room3.glb"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/room3.glb",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "model/gltf-binary"
+          }
+        ]
+      }
+    ]
+  }
