@@ -64,7 +64,7 @@ const MainScene: React.FC = () => {
 
     if (!node.puzzle) {
       addChatMessage('System', `Fetching a new puzzle for ${node.id}...`);
-      const newPuzzleContent = await generatePuzzle('Fetch puzzle for node');
+      const newPuzzleContent = await generatePuzzle();
 
       if (!newPuzzleContent) {
         addChatMessage('System', 'Error generating puzzle. Try again later!');
