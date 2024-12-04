@@ -111,7 +111,6 @@ function MainScene() {
       addChatMessage("Bob", "Incorrect answer. Try again!");
     }
   };
-  
 
   return (
     <>
