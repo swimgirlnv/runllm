@@ -3,7 +3,7 @@ import { useGLTF } from "@react-three/drei";
 
 
 const RoomModel = (props) => {
-  const { scene } = useGLTF("./room3.glb");
+  const { scene } = useGLTF("/room3.glb");
   return (
     <primitive object={scene} {...props} />
   );
