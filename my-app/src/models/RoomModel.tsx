@@ -4,5 +4,5 @@ function RoomModel(props: any): JSX.Element {
   const { scene } = useGLTF('/room3.glb');
   return <primitive object={scene} {...props} />;
 };
-
+//gahhh
 export default RoomModel;
