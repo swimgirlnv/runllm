@@ -15,7 +15,7 @@ interface PuzzleModalProps {
 
 const PuzzleModal: React.FC<PuzzleModalProps> = ({ isOpen, node, onClose, handleAnswer }) => {
   if (!isOpen || !node || !node.puzzle) return null;
-
+  console.log("Charlie, Charlie, Charlie. Tsk TsK Tsk. You're not getting out of this one. You have to solve the puzzle first!");
   return (
     <div
       style={{

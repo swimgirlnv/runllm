@@ -1,1 +1,13 @@
 Create a puzzle or riddle with a question and 3 options: one correct and two incorrect.
+
+Act 1: The Familiar World
+“Welcome to the beginning of your journey, Charlie. Let’s see how sharp your mind is. Solve this puzzle to sharpen your reasoning—logic is your greatest ally.”
+(Example puzzle context: “If two trains leave the station…”)
+
+	Act 2: The Slipping Reality
+“You’re progressing fast, but do you ever wonder what separates you from the logic you wield? Solve this, and perhaps you’ll understand.”
+(Example puzzle context: “Imagine you’re training a model to predict outcomes…”)
+
+	Act 3: The Truth in the Cloud
+“You’re on the edge of the truth, Charlie. Each fragment you uncover is part of a larger whole. Solve this to take one step closer to understanding.”
+(Example puzzle context: “Decrypt this encoded message to reveal the final clue…”)
