@@ -210,3 +210,65 @@ export const generateCaptcha = async (): Promise<{ type: string; data: any } | n
     return null;
   }
 };
+
+export const generateTuringTest = async (): Promise<{ question: string; correctAnswer: string; incorrectAnswers: string[] } | null> => {
+  try {
+    const prompt = `
+      Create a Turing Test challenge. The Turing Test is a thought experiment that assesses a machine's ability to exhibit human-like intelligence.
+
+      Ask a question that tries to determine if the player is human or a machine. Do not ask for capitals of countries or other simple questions.
+      
+      Provide the following:
+      1. A single question that tests reasoning or knowledge, starting with "$", followed by a newline.
+      2. One correct answer marked with "*" and at least 2 plausible incorrect answers marked with "&".
+      Ensure the answers are properly labeled with symbols. The format should look like this:
+
+      $Question
+      *Correct Answer
+      &Incorrect Answer 1
+      &Incorrect Answer 2
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "system", content: prompt }],
+      max_tokens: 200,
+      temperature: 0.7,
+    });
+
+    const content = response.choices?.[0]?.message?.content?.trim();
+    if (!content) throw new Error("Turing Test generation failed.");
+
+    // Split lines and clean up whitespace
+    const lines = content.split("\n").map((line) => line.trim());
+
+    // Extract the question
+    const question = lines.find((line) => line.startsWith("$"))?.replace("$", "").trim();
+    if (!question) {
+      throw new Error("Invalid Turing Test format: Missing question.");
+    }
+
+    // Extract the correct answer
+    const correctAnswerLine = lines.find((line) => line.startsWith("*"));
+    if (!correctAnswerLine) {
+      throw new Error("Invalid Turing Test format: Missing correct answer.");
+    }
+    const correctAnswer = correctAnswerLine.replace("*", "").trim();
+
+    // Extract incorrect answers
+    const incorrectAnswers = lines
+      .filter((line) => line.startsWith("&"))
+      .map((line) => line.replace("&", "").trim());
+
+    // Validate the extracted data
+    if (!correctAnswer || incorrectAnswers.length < 2) {
+      console.error("Invalid Turing Test data:", { question, correctAnswer, incorrectAnswers });
+      throw new Error("Invalid Turing Test format: Insufficient data.");
+    }
+
+    return { question, correctAnswer, incorrectAnswers };
+  } catch (error) {
+    console.error("Error generating Turing Test:", error);
+    return null;
+  }
+};
