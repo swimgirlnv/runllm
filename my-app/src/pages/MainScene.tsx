@@ -26,6 +26,7 @@ import SlidingTileGame from "../components/puzzles/SlidingTilePuzzle";
 import SlidingTileZone from "../components/zones/SlidingTileZone";
 import OnOrOffGame from "../components/herring/OnOrOffGame";
 import LoadingScreen from "../components/LoadingScene";
+import PaperModal from "../components/zones/PaperModal";
 
 export type GameState = "Act1" | "Act2" | "Act3" | "Act4";
 
@@ -89,21 +90,29 @@ const MainScene: React.FC = () => {
     trained: boolean;
   } | null>(null);
 
-  const handleOnOrOffCompletion = async (stats: { trained: boolean; time: number; ruleMatch: boolean }) => {
+  const handleOnOrOffCompletion = async (stats: {
+    trained: boolean;
+    time: number;
+    ruleMatch: boolean;
+  }) => {
     setShowOnOrOffModal(false);
     setTrainingStats(stats);
-      await addDynamicNote(
-        "alice",
-        `Charlie was successfully trained to recognize the On and Off patterns in a simple game. Time taken: ${stats.time}s. Rule Match: ${
+    await addDynamicNote(
+      "alice",
+      `Charlie was successfully trained to recognize the On and Off patterns in a simple game. Time taken: ${
+        stats.time
+      }s. Rule Match: ${
         stats.ruleMatch ? "Yes" : "No"
       }. Does this mean he is thinking like a human or a machine?`
-      );
-      await addDynamicNote(
-        "bob",
-        `Charlie was successfully trained to recognize the On and Off patterns in a simple game. Time taken: ${stats.time}s. Rule Match: ${
+    );
+    await addDynamicNote(
+      "bob",
+      `Charlie was successfully trained to recognize the On and Off patterns in a simple game. Time taken: ${
+        stats.time
+      }s. Rule Match: ${
         stats.ruleMatch ? "Yes" : "No"
       }.Does this mean he is thinking like a human or a machine?`
-      );
+    );
   };
 
   const BLOG_ZONE = {
@@ -384,6 +393,7 @@ const MainScene: React.FC = () => {
     }
   };
 
+  // LOAD SCREEN
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Handler for when the scene finishes loading
@@ -393,9 +403,20 @@ const MainScene: React.FC = () => {
     }, 500); // Delay for a smooth transition
   };
 
+  // PAPER MODALS
+  const [showPaperModal, setShowPaperModal] = useState(false);
+  const [currentPaper, setCurrentPaper] = useState<string | null>(null);
+
+  const handlePaperClick = async (paperName: string) => {
+    const response = await fetch(`/papers/${paperName}.md`);
+    const text = await response.text();
+    setCurrentPaper(text);
+    setShowPaperModal(true);
+  };
+
   return (
     <>
-    {!isLoaded && <LoadingScreen />}
+      {!isLoaded && <LoadingScreen />}
       <Canvas
         shadows
         camera={{ position: [0, 3, 6], fov: 60 }}
@@ -483,8 +504,8 @@ const MainScene: React.FC = () => {
             key={node.id}
             position={node.position}
             rotation={node.rotation}
-            onPointerOver={() => (document.body.style.cursor = 'pointer')}
-            onPointerOut={() => (document.body.style.cursor = 'default')}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
             onClick={() => handleNodeClick(node)}
           >
             <planeGeometry args={node.size} />
@@ -523,26 +544,64 @@ const MainScene: React.FC = () => {
           onClick={() => setShowSlidingTileModal(true)}
         />
 
+        {/* Blog Zone */}
         <mesh
           position={BLOG_ZONE.position}
           rotation={BLOG_ZONE.rotation}
-          onPointerOver={() => (document.body.style.cursor = 'pointer')}
-          onPointerOut={() => (document.body.style.cursor = 'default')}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
           onClick={() => setShowBlogModal(true)}
         >
           <planeGeometry args={[BLOG_ZONE.size[0], BLOG_ZONE.size[1]]} />
           <meshBasicMaterial color={BLOG_ZONE.color} transparent opacity={0} />
         </mesh>
 
+        {/* Sliding Tile Paper Mesh */}
         <mesh
           position={[-2.4, -1.7, -11]}
           rotation={[5.5, 0, 0]}
-          onPointerOver={() => (document.body.style.cursor = 'pointer')}
-          onPointerOut={() => (document.body.style.cursor = 'default')}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
           onClick={() => setShowOnOrOffModal(true)}
         >
-          <planeGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="purple" transparent opacity={0}/>
+          <planeGeometry args={[1, 1]} />
+          <meshStandardMaterial color="purple" transparent opacity={0} />
+        </mesh>
+
+        {/* Sliding Tile Paper Mesh */}
+        <mesh
+          position={[19.4, -2.2, -13]}
+          rotation={[0, 5.65, 0]}
+          onClick={() => handlePaperClick("SlidingTile")}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+        >
+          <planeGeometry args={[2, .2]} />
+          <meshStandardMaterial  color="purple" transparent opacity={0}/>
+        </mesh>
+
+        {/* On/Off Paper Mesh */}
+        <mesh
+          position={[19.4, -2.5, -13]}
+          rotation={[0, 5.65, 0]}
+          onClick={() => handlePaperClick("OnOff")}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+        >
+          <planeGeometry args={[2, .2]} />
+          <meshStandardMaterial  color="purple" transparent opacity={0}/>
+        </mesh>
+
+        {/* ARC Paper Mesh */}
+        <mesh
+          position={[19.6, -2.8, -13]}
+          rotation={[0, 5.65, 0]}
+          onClick={() => handlePaperClick("ARC")}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+        >
+          <planeGeometry args={[2, .2]} />
+          <meshStandardMaterial  color="purple" transparent opacity={0}/>
         </mesh>
 
         <OrbitControls
@@ -672,6 +731,14 @@ const MainScene: React.FC = () => {
         >
           <OnOrOffGame onComplete={handleOnOrOffCompletion} />
         </div>
+      )}
+
+      {showPaperModal && (
+        <PaperModal
+          isOpen={showPaperModal}
+          paperContent={currentPaper}
+          onClose={() => setShowPaperModal(false)}
+        />
       )}
     </>
   );
