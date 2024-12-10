@@ -1,15 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface BlogModalProps {
   isOpen: boolean;
   onClose: () => void;
+  logToDevTools: (message: string) => void; // Function to log to the DevToolDrawer
 }
 
-const BlogModal: React.FC<BlogModalProps> = ({ isOpen, onClose }) => {
+const BlogModal: React.FC<BlogModalProps> = ({ isOpen, onClose, logToDevTools }) => {
+  const [hasLogged, setHasLogged] = useState(false); // Track if the log has occurred
+
+  useEffect(() => {
+    if (isOpen && !hasLogged) {
+      const message =
+        "Ahh, you've found my musings! Good job, Charlie. Now, let's see what I've been up to lately...";
+      console.log(message); // Log to the browser console
+      logToDevTools(message); // Log to the DevToolDrawer
+      setHasLogged(true); // Prevent further logging until modal is reopened
+    } else if (!isOpen) {
+      setHasLogged(false); // Reset log status when the modal closes
+    }
+  }, [isOpen, hasLogged, logToDevTools]);
+
   if (!isOpen) return null; // Render nothing if the modal is closed
-  console.log(
-    "Ahh, you've found my musings! Good job, Charlie. Now, let's see what I've been up to lately..."
-  );
+
   return (
     <div
       style={{

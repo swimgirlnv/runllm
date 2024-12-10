@@ -3,12 +3,14 @@ import React from "react";
 interface NotesDashboardProps {
   isOpen: boolean;
   notes: string[]; // Array of notes from Alice and Bob
+  observations: string[]; // Array of observations from Glitches
   onClose: () => void;
 }
 
 const NotesDashboard: React.FC<NotesDashboardProps> = ({
   isOpen,
   notes,
+  observations,
   onClose,
 }) => {
   if (!isOpen) return null;
@@ -30,11 +32,20 @@ const NotesDashboard: React.FC<NotesDashboardProps> = ({
         overflowY: "auto",
       }}
     >
-      <h3 style={{ marginBottom: "10px" }}>Observations</h3>
+      <h3 style={{ marginBottom: "10px" }}>Notes</h3>
       <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
         {notes.map((note, index) => (
           <li key={index} style={{ marginBottom: "10px", fontSize: "14px" }}>
             {note}
+          </li>
+        ))}
+      </ul>
+
+      <h3 style={{ marginBottom: "10px" }}>Glitch Reports</h3>
+      <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+        {observations.map((observation, index) => (
+          <li key={index} style={{ marginBottom: "10px", fontSize: "14px" }}>
+            {observation}
           </li>
         ))}
       </ul>

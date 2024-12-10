@@ -27,6 +27,7 @@ import SlidingTileZone from "../components/zones/SlidingTileZone";
 import OnOrOffGame from "../components/herring/OnOrOffGame";
 import LoadingScreen from "../components/LoadingScene";
 import PaperModal from "../components/zones/PaperModal";
+import DevToolsDrawer from "../components/devtools/DevToolsDrawer";
 
 export type GameState = "Act1" | "Act2" | "Act3" | "Act4";
 
@@ -183,7 +184,7 @@ const MainScene: React.FC = () => {
     }
 
     if (!node.puzzle) {
-      const newPuzzleContent = await generatePuzzle(gameState); // Generate puzzle based on the theme
+      const newPuzzleContent = await generatePuzzle(gameState, addToDevToolLogs); // Generate puzzle based on the theme
 
       if (!newPuzzleContent) {
         addChatMessage("System", "Error generating puzzle. Try again later!");
@@ -414,6 +415,26 @@ const MainScene: React.FC = () => {
     setShowPaperModal(true);
   };
 
+  // DEV TOOLS
+  const [isDevToolsOpen, setDevToolsOpen] = useState(false);
+  const [devToolLogs, setDevToolLogs] = useState<string[]>([]);
+  const [observations, setObservations] = useState<string[]>([]);
+
+
+  const handleMeshClick = () => {
+    setDevToolsOpen(true);
+  };
+
+  const addToDevToolLogs = (message: string) => {
+    setDevToolLogs((prevLogs) => [...prevLogs, message]);
+  };
+
+  const reportObservation = (observation: string) => {
+    setObservations((prev) => [...prev, observation]);
+    console.log("Observation reported:", observation);
+  };
+
+
   return (
     <>
       {!isLoaded && <LoadingScreen />}
@@ -556,6 +577,18 @@ const MainScene: React.FC = () => {
           <meshBasicMaterial color={BLOG_ZONE.color} transparent opacity={0} />
         </mesh>
 
+        {/* DevTools Mesh */}
+        <mesh
+          position={[7.2, .5, -13.5]}
+          rotation={[5.5, 0, 0]}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+          onClick={handleMeshClick}
+        >
+          <planeGeometry args={[1, 1]} />
+          <meshStandardMaterial color="blue" transparent opacity={0}/>
+        </mesh>
+
         {/* Sliding Tile Paper Mesh */}
         <mesh
           position={[-2.4, -1.7, -11]}
@@ -576,8 +609,8 @@ const MainScene: React.FC = () => {
           onPointerOver={() => (document.body.style.cursor = "pointer")}
           onPointerOut={() => (document.body.style.cursor = "default")}
         >
-          <planeGeometry args={[2, .2]} />
-          <meshStandardMaterial  color="purple" transparent opacity={0}/>
+          <planeGeometry args={[2, 0.2]} />
+          <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
 
         {/* On/Off Paper Mesh */}
@@ -588,8 +621,8 @@ const MainScene: React.FC = () => {
           onPointerOver={() => (document.body.style.cursor = "pointer")}
           onPointerOut={() => (document.body.style.cursor = "default")}
         >
-          <planeGeometry args={[2, .2]} />
-          <meshStandardMaterial  color="purple" transparent opacity={0}/>
+          <planeGeometry args={[2, 0.2]} />
+          <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
 
         {/* ARC Paper Mesh */}
@@ -600,8 +633,44 @@ const MainScene: React.FC = () => {
           onPointerOver={() => (document.body.style.cursor = "pointer")}
           onPointerOut={() => (document.body.style.cursor = "default")}
         >
-          <planeGeometry args={[2, .2]} />
-          <meshStandardMaterial  color="purple" transparent opacity={0}/>
+          <planeGeometry args={[2, 0.2]} />
+          <meshStandardMaterial color="purple" transparent opacity={0} />
+        </mesh>
+
+        {/* In Favor Paper Mesh */}
+        <mesh
+          position={[19.6, -3, -12.8]}
+          rotation={[0, 5.65, 0]}
+          onClick={() => handlePaperClick("InFavor")}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+        >
+          <planeGeometry args={[2, 0.2]} />
+          <meshStandardMaterial color="purple" transparent opacity={0} />
+        </mesh>
+
+        {/* Against Paper Mesh */}
+        <mesh
+          position={[19.6, -3.3, -12.8]}
+          rotation={[0, 5.65, 0]}
+          onClick={() => handlePaperClick("Against")}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+        >
+          <planeGeometry args={[2, 0.2]} />
+          <meshStandardMaterial color="purple"  transparent opacity={0} />
+        </mesh>
+
+        {/* Training Manual Paper Mesh */}
+        <mesh
+          position={[18, -3.9, -11]}
+          rotation={[0, 5.65, 0]}
+          onClick={() => handlePaperClick("TrainingManual")}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+        >
+          <planeGeometry args={[2, 0.2]} />
+          <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
 
         <OrbitControls
@@ -623,6 +692,8 @@ const MainScene: React.FC = () => {
           puzzle={activeNode.puzzle}
           onClose={() => setActiveNode(null)}
           handleAnswer={handlePuzzleAnswer}
+          reportObservation={reportObservation} 
+          logToDevTools={(message) => addToDevToolLogs(message)}
         />
       )}
       {showCaptchaModal && (
@@ -632,6 +703,8 @@ const MainScene: React.FC = () => {
           captchaData={captchaData!}
           onComplete={handleCaptchaCompletion}
           onClose={() => setShowCaptchaModal(false)}
+          logToDevTools={(message) => addToDevToolLogs(message)}
+          reportObservation={reportObservation}
         />
       )}
       {showTuringTestModal && (
@@ -658,6 +731,7 @@ const MainScene: React.FC = () => {
         <NotesDashboard
           isOpen={showNotesDashboard}
           notes={notes}
+          observations={observations}
           onClose={() => setShowNotesDashboard(false)}
         />
       )}
@@ -665,6 +739,7 @@ const MainScene: React.FC = () => {
         <BlogModal
           isOpen={showBlogModal}
           onClose={() => setShowBlogModal(false)}
+          logToDevTools={(message) => addToDevToolLogs(message)}
         />
       )}
       {showGridGameModal && (
@@ -740,6 +815,12 @@ const MainScene: React.FC = () => {
           onClose={() => setShowPaperModal(false)}
         />
       )}
+
+      <DevToolsDrawer
+        isOpen={isDevToolsOpen}
+        logs={devToolLogs}
+        onClose={() => setDevToolsOpen(false)}
+      />
     </>
   );
 };

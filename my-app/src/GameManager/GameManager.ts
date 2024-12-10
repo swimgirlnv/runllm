@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-// console.log(import.meta.env.VITE_OPENAI_API_KEY);
+
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true,
@@ -106,7 +106,8 @@ export const sendMessageToAssistant = async (
 
 // Generate a puzzle
 export const generatePuzzle = async (
-  gameState: string
+  gameState: string,
+  addToDevToolLogs: (message: string) => void
 ): Promise<{
   question: string;
   correctAnswer: string;
@@ -145,12 +146,14 @@ export const generatePuzzle = async (
     max_tokens: 200,
     temperature: 0.8,
   });
-  console.log(response);
 
   const content = response.choices?.[0]?.message?.content?.trim();
   if (!content) return null;
 
-  console.log(content);
+  // Log the extracted content to DevToolDrawer and console (only once per call)
+  const contentMessage = `${content}`;
+  console.log(contentMessage);
+  addToDevToolLogs(contentMessage);
 
   // Extract question, correct answer, and incorrect answers
   const lines = content.split("\n").map((line) => line.trim());

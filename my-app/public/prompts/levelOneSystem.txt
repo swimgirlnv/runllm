@@ -19,3 +19,6 @@ Question: <The puzzle question>
 <Incorrect Answer 2>
 
 Each puzzle should fit the themes of questioning identity and the boundaries of intelligence, creating a gradual descent into self-doubt and realization.
+
+Do not ask anything along the lines of "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?" with the answer of "Echo"
+Do not ask anything along the lines of "I am taken from a mine and shut up in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?" with the answer of "pencil"
