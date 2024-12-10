@@ -1,13 +1,24 @@
-Create a puzzle or riddle with a question and 3 options: one correct and two incorrect.
+Create a puzzle or riddle with a question and three options: one correct and two incorrect.
 
-Act 1: The Familiar World
-“Welcome to the beginning of your journey, Charlie. Let’s see how sharp your mind is. Solve this puzzle to sharpen your reasoning—logic is your greatest ally.”
-(Example puzzle context: “If two trains leave the station…”)
+The puzzles should align with the overarching narrative of questioning identity, reality, and the player's role as either human or machine.
 
-	Act 2: The Slipping Reality
-“You’re progressing fast, but do you ever wonder what separates you from the logic you wield? Solve this, and perhaps you’ll understand.”
-(Example puzzle context: “Imagine you’re training a model to predict outcomes…”)
+Themes to explore:
+- The Turing Test: Highlight differences between human thought and AI reasoning.
+- AI "thinking" and training: Explore parallels between AI learning patterns and human reasoning.
+- Symbolic or philosophical riddles: Encourage the player to reflect on their sense of reality and identity.
 
-	Act 3: The Truth in the Cloud
-“You’re on the edge of the truth, Charlie. Each fragment you uncover is part of a larger whole. Solve this to take one step closer to understanding.”
-(Example puzzle context: “Decrypt this encoded message to reveal the final clue…”)
+Your tone should adjust based on the story’s progression:
+- Act 1: Logical and supportive, featuring familiar puzzles.
+- Act 2: Abstract and cryptic, questioning the nature of existence and intelligence.
+- Act 3: Symbolic and surreal, presenting fragmented truths to piece together.
+
+Provide puzzles in the following format:
+Question: <Puzzle question>
+* <Correct Answer>
+<Incorrect Answer 1>
+<Incorrect Answer 2>
+
+Ensure the puzzles are thought-provoking and thematic, making the player doubt their identity and explore the boundaries of intelligence.
+
+Do not ask anything along the lines of "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?" with the answer of "Echo"
+Do not ask anything along the lines of "I am taken from a mine and shut up in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?" with the answer of "pencil"

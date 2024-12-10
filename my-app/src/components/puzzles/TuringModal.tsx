@@ -58,7 +58,8 @@ const TuringTestModal: React.FC<TuringTestModalProps> = ({
               margin: "10px 0",
               padding: "10px",
               width: "100%",
-              backgroundColor: selectedOption === option ? "#5cb85c" : "#f0f0f0",
+              backgroundColor:
+                selectedOption === option ? "#5cb85c" : "#f0f0f0",
               border: "1px solid black",
               borderRadius: "4px",
               cursor: "pointer",

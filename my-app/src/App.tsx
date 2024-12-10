@@ -1,12 +1,12 @@
-import React from 'react';
-import MainScene from './pages/MainScene';
+import React from "react";
+import MainScene from "./pages/MainScene";
 
 const App: React.FC = () => {
-    return (
+  return (
     <>
-    <MainScene />
+      <MainScene />
     </>
-    );
+  );
 };
 
 export default App;

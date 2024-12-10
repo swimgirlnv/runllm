@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import { GameState } from "../pages/MainScene";
 // console.log(import.meta.env.VITE_OPENAI_API_KEY);
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -69,11 +68,11 @@ export const sendMessageToAssistant = async (
         if (!content) {
           throw new Error(`Invalid message format: "${msg}"`);
         }
-  
+
         // Enforce role assignment explicitly
         const role: ChatCompletionMessageParam["role"] =
           sender.toLowerCase() === "charlie" ? "user" : "assistant";
-  
+
         return { role, content: content.trim() };
       }),
     ];
@@ -92,65 +91,92 @@ export const sendMessageToAssistant = async (
     }
 
     // Add the assistant's response to the thread
-    threads[threadId].push(`${assistant.charAt(0).toUpperCase() + assistant.slice(1)}: ${content}`);
+    threads[threadId].push(
+      `${assistant.charAt(0).toUpperCase() + assistant.slice(1)}: ${content}`
+    );
 
     return content;
   } catch (error) {
     console.error(`Error communicating with ${assistant}:`, error);
-    return `${assistant.charAt(0).toUpperCase() + assistant.slice(1)} is unavailable right now.`;
+    return `${
+      assistant.charAt(0).toUpperCase() + assistant.slice(1)
+    } is unavailable right now.`;
   }
 };
 
 // Generate a puzzle
-export const generatePuzzle = async (gameState: GameState): Promise<string | null> => {
-  let puzzleContext: string;
+export const generatePuzzle = async (
+  gameState: string
+): Promise<{
+  question: string;
+  correctAnswer: string;
+  incorrectAnswers: string[];
+} | null> => {
+  let context = "";
   switch (gameState) {
     case "Act1":
-      puzzleContext = "Create a familiar riddle or logic puzzle.";
+      context = "Create a logic-based puzzle for the player to solve.";
       break;
     case "Act2":
-      puzzleContext = "Create an abstract puzzle about pattern recognition or AI concepts like reinforcement learning.";
+      context =
+        "Generate a puzzle with philosophical undertones about AI and existence.";
       break;
     case "Act3":
-      puzzleContext = "Generate a puzzle involving decryption or piecing together corrupted files.";
+      context =
+        "Create an abstract puzzle that explores fragmented memories or encryption.";
       break;
     case "Act4":
-      puzzleContext = "Create a final meta-puzzle about identity and existence.";
+      context = "Design a symbolic puzzle about identity and humanity.";
       break;
     default:
       throw new Error("Invalid game state.");
   }
 
-  try {
-    const systemPrompt = `You are a Level One Assistant. ${await fetchPrompt(
-      `/prompts/levelOneSystem.txt`
-    )}`;
-    const assistantPrompt = await fetchPrompt(`/prompts/levelOneAssistant.txt`);
+  const systemPrompt = await fetchPrompt("/prompts/levelOneSystem.txt");
+  const assistantPrompt = await fetchPrompt("/prompts/levelOneSystem.txt");
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "assistant", content: assistantPrompt },
-        { role: "user", content: puzzleContext },
-      ],
-      max_tokens: 200,
-      temperature: 0.8,
-    });
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "assistant", content: assistantPrompt },
+      { role: "user", content: context },
+    ],
+    max_tokens: 200,
+    temperature: 0.8,
+  });
+  console.log(response);
 
-    const content = response.choices?.[0]?.message?.content?.trim();
-    if (!content) {
-      throw new Error("Puzzle generation failed.");
-    }
+  const content = response.choices?.[0]?.message?.content?.trim();
+  if (!content) return null;
 
-    return content;
-  } catch (error) {
-    console.error("Error generating puzzle:", error);
+  console.log(content);
+
+  // Extract question, correct answer, and incorrect answers
+  const lines = content.split("\n").map((line) => line.trim());
+  const question = lines.shift();
+  const correctAnswerLine = lines
+    .find((line) => line.startsWith("*"))
+    ?.replace("*", "")
+    .trim();
+  const incorrectAnswers = lines
+    .filter((line) => !line.startsWith("*"))
+    .map((line) => line.trim());
+
+  if (!question || !correctAnswerLine || incorrectAnswers.length < 2)
     return null;
-  }
+
+  return {
+    question,
+    correctAnswer: correctAnswerLine,
+    incorrectAnswers,
+  };
 };
 
-export const generateCaptcha = async (): Promise<{ type: string; data: any } | null> => {
+export const generateCaptcha = async (): Promise<{
+  type: string;
+  data: any;
+} | null> => {
   try {
     // Randomly choose between word or logic CAPTCHA
     const captchaType = Math.random() > 0.5 ? "word" : "logic";
@@ -197,7 +223,9 @@ export const generateCaptcha = async (): Promise<{ type: string; data: any } | n
       const question = lines.shift(); // First line is the question
       const correctAnswerLine = lines.find((line) => line.startsWith("*"));
       if (!question || !correctAnswerLine) {
-        throw new Error("Invalid logic CAPTCHA format. Missing question or correct answer.");
+        throw new Error(
+          "Invalid logic CAPTCHA format. Missing question or correct answer."
+        );
       }
       const correctAnswer = correctAnswerLine.replace("*", "").trim();
       const incorrectAnswers = lines.filter((line) => !line.startsWith("*"));
@@ -211,7 +239,11 @@ export const generateCaptcha = async (): Promise<{ type: string; data: any } | n
   }
 };
 
-export const generateTuringTest = async (): Promise<{ question: string; correctAnswer: string; incorrectAnswers: string[] } | null> => {
+export const generateTuringTest = async (): Promise<{
+  question: string;
+  correctAnswer: string;
+  incorrectAnswers: string[];
+} | null> => {
   try {
     const prompt = `
       Create a Turing Test challenge. The Turing Test is a thought experiment that assesses a machine's ability to exhibit human-like intelligence.
@@ -243,7 +275,10 @@ export const generateTuringTest = async (): Promise<{ question: string; correctA
     const lines = content.split("\n").map((line) => line.trim());
 
     // Extract the question
-    const question = lines.find((line) => line.startsWith("$"))?.replace("$", "").trim();
+    const question = lines
+      .find((line) => line.startsWith("$"))
+      ?.replace("$", "")
+      .trim();
     if (!question) {
       throw new Error("Invalid Turing Test format: Missing question.");
     }
@@ -262,7 +297,11 @@ export const generateTuringTest = async (): Promise<{ question: string; correctA
 
     // Validate the extracted data
     if (!correctAnswer || incorrectAnswers.length < 2) {
-      console.error("Invalid Turing Test data:", { question, correctAnswer, incorrectAnswers });
+      console.error("Invalid Turing Test data:", {
+        question,
+        correctAnswer,
+        incorrectAnswers,
+      });
       throw new Error("Invalid Turing Test format: Insufficient data.");
     }
 
@@ -271,4 +310,33 @@ export const generateTuringTest = async (): Promise<{ question: string; correctA
     console.error("Error generating Turing Test:", error);
     return null;
   }
+};
+
+export const generateAssistantNotes = async (
+  assistant: "Alice" | "Bob",
+  gameData: {
+    correctAnswers: number;
+    incorrectAnswers: number;
+    puzzlesCompleted: number;
+  }
+): Promise<string> => {
+  const context =
+    assistant === "Alice"
+      ? `You are Alice, a logical assistant. Analyze the player's actions and provide an objective summary of their performance.`
+      : `You are Bob, a cryptic assistant. Provide a creative and cryptic interpretation of the player's behavior.`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      { role: "system", content: context },
+      {
+        role: "user",
+        content: `The player has completed ${gameData.puzzlesCompleted} puzzles, answered ${gameData.correctAnswers} questions correctly, and made ${gameData.incorrectAnswers} mistakes.`,
+      },
+    ],
+    max_tokens: 150,
+    temperature: 0.7,
+  });
+
+  return response.choices?.[0]?.message?.content?.trim() || "";
 };

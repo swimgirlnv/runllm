@@ -8,7 +8,13 @@ interface CaptchaModalProps {
   onComplete: (isSuccess: boolean) => void; // Notify success or failure
 }
 
-const CaptchaModal: React.FC<CaptchaModalProps> = ({ isOpen, captchaType, captchaData, onClose, onComplete }) => {
+const CaptchaModal: React.FC<CaptchaModalProps> = ({
+  isOpen,
+  captchaType,
+  captchaData,
+  onClose,
+  onComplete,
+}) => {
   const [userInput, setUserInput] = useState(""); // User's input for the answer
   const [errorMessage, setErrorMessage] = useState(""); // Error message for incorrect attempts
 
@@ -28,7 +34,10 @@ const CaptchaModal: React.FC<CaptchaModalProps> = ({ isOpen, captchaType, captch
     }
   };
 
-  console.log("Psst, Charlie! The correct answer is:", captchaData.correctAnswer);
+  console.log(
+    "Psst, Charlie! The correct answer is:",
+    captchaData.correctAnswer
+  );
 
   return (
     <div
@@ -82,7 +91,9 @@ const CaptchaModal: React.FC<CaptchaModalProps> = ({ isOpen, captchaType, captch
         Submit
       </button>
       {errorMessage && (
-        <p style={{ color: "red", marginTop: "10px", textAlign: "center" }}>{errorMessage}</p>
+        <p style={{ color: "red", marginTop: "10px", textAlign: "center" }}>
+          {errorMessage}
+        </p>
       )}
     </div>
   );

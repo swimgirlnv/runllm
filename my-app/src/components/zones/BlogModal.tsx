@@ -7,7 +7,9 @@ interface BlogModalProps {
 
 const BlogModal: React.FC<BlogModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null; // Render nothing if the modal is closed
-    console.log("Ahh, you've found my musings! Good job, Charlie. Now, let's see what I've been up to lately...");
+  console.log(
+    "Ahh, you've found my musings! Good job, Charlie. Now, let's see what I've been up to lately..."
+  );
   return (
     <div
       style={{

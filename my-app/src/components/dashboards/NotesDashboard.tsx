@@ -6,7 +6,11 @@ interface NotesDashboardProps {
   onClose: () => void;
 }
 
-const NotesDashboard: React.FC<NotesDashboardProps> = ({ isOpen, notes, onClose }) => {
+const NotesDashboard: React.FC<NotesDashboardProps> = ({
+  isOpen,
+  notes,
+  onClose,
+}) => {
   if (!isOpen) return null;
 
   return (
