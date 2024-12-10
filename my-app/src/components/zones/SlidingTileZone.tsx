@@ -14,7 +14,13 @@ const SlidingTileZone: React.FC<SlidingTileZoneProps> = ({
   onClick,
 }) => {
   return (
-    <mesh position={position} rotation={rotation} onClick={onClick}>
+    <mesh
+      onPointerOver={() => (document.body.style.cursor = "pointer")}
+      onPointerOut={() => (document.body.style.cursor = "default")}
+      position={position}
+      rotation={rotation}
+      onClick={onClick}
+    >
       <planeGeometry args={size} />
       <meshBasicMaterial color="green" transparent opacity={0} />
     </mesh>

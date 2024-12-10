@@ -24,6 +24,8 @@ import GridGame from "../components/chollet/GridGame";
 import GridZone from "../components/zones/GridZone";
 import SlidingTileGame from "../components/puzzles/SlidingTilePuzzle";
 import SlidingTileZone from "../components/zones/SlidingTileZone";
+import OnOrOffGame from "../components/herring/OnOrOffGame";
+import LoadingScreen from "../components/LoadingScene";
 
 export type GameState = "Act1" | "Act2" | "Act3" | "Act4";
 
@@ -61,7 +63,6 @@ const MainScene: React.FC = () => {
   const [showGridGameModal, setShowGridGameModal] = useState(false);
   const [showSlidingTileModal, setShowSlidingTileModal] = useState(false);
 
-
   // Statistics tracking
   const [totalCorrect, setTotalCorrect] = useState(0);
   const [totalIncorrect, setTotalIncorrect] = useState(0);
@@ -80,6 +81,30 @@ const MainScene: React.FC = () => {
   // Captcha and Turing Test modal states
   const [captchaType, setCaptchaType] = useState<string | null>(null);
   const [captchaData, setCaptchaData] = useState<any | null>(null);
+
+  const [showOnOrOffModal, setShowOnOrOffModal] = useState(false);
+  const [_trainingStats, setTrainingStats] = useState<{
+    time: number;
+    ruleMatch: boolean;
+    trained: boolean;
+  } | null>(null);
+
+  const handleOnOrOffCompletion = async (stats: { trained: boolean; time: number; ruleMatch: boolean }) => {
+    setShowOnOrOffModal(false);
+    setTrainingStats(stats);
+      await addDynamicNote(
+        "alice",
+        `Charlie was successfully trained to recognize the On and Off patterns in a simple game. Time taken: ${stats.time}s. Rule Match: ${
+        stats.ruleMatch ? "Yes" : "No"
+      }. Does this mean he is thinking like a human or a machine?`
+      );
+      await addDynamicNote(
+        "bob",
+        `Charlie was successfully trained to recognize the On and Off patterns in a simple game. Time taken: ${stats.time}s. Rule Match: ${
+        stats.ruleMatch ? "Yes" : "No"
+      }.Does this mean he is thinking like a human or a machine?`
+      );
+  };
 
   const BLOG_ZONE = {
     id: "captchaZone",
@@ -143,8 +168,44 @@ const MainScene: React.FC = () => {
 
   // Puzzle Interaction
   const handleNodeClick = async (node: Node) => {
-    if (!node.unlocked) return addChatMessage("System", "Access Denied!");
-    if (!node.puzzle) await generateNodePuzzle(node);
+    if (!node.unlocked) {
+      addChatMessage("System", `You do not have access yet.`);
+      return;
+    }
+
+    if (!node.puzzle) {
+      const newPuzzleContent = await generatePuzzle(gameState); // Generate puzzle based on the theme
+
+      if (!newPuzzleContent) {
+        addChatMessage("System", "Error generating puzzle. Try again later!");
+        return;
+      }
+
+      const question = newPuzzleContent.question;
+      const correctAnswerLine = newPuzzleContent.correctAnswer;
+      if (!correctAnswerLine) {
+        addChatMessage("System", "Error: No correct answer found in puzzle.");
+        return;
+      }
+      const correctAnswer = correctAnswerLine.replace("*", "").trim();
+      const incorrectAnswers = newPuzzleContent.incorrectAnswers;
+
+      const newPuzzle = {
+        id: `puzzle-${Date.now()}`,
+        question,
+        options: [correctAnswer, ...incorrectAnswers].sort(
+          () => Math.random() - 0.5
+        ),
+        correctAnswer,
+      };
+
+      setNodes((prev) =>
+        prev.map((n) => (n.id === node.id ? { ...n, puzzle: newPuzzle } : n))
+      );
+
+      addChatMessage("System", `Double click to access this puzzle.`);
+    }
+
     setActiveNode(node);
   };
 
@@ -164,11 +225,24 @@ const MainScene: React.FC = () => {
       addChatMessage("Alice", "Correct! Well done.");
       await addDynamicNote(
         "alice",
-        `Charlie solved a puzzle in the "${node.theme}" theme.`
+        `Charlie successfully solved a puzzle in the "${node.theme}" theme.`
+      );
+      await addDynamicNote(
+        "bob",
+        `Charlie solved a puzzle. Do you think their logic was more human-like or algorithmic?`
       );
     } else {
       setTotalIncorrect((prev) => prev + 1);
       addChatMessage("Bob", "Incorrect. Try again.");
+
+      await addDynamicNote(
+        "alice",
+        `Charlie struggled to solve a puzzle in the "${node.theme}" theme. What does that say about their reasoning ability?`
+      );
+      await addDynamicNote(
+        "bob",
+        `Charlie failed a puzzle. Even humans make mistakes, but is it a flaw of logic or creativity?`
+      );
     }
     setActiveNode(null);
   };
@@ -186,25 +260,25 @@ const MainScene: React.FC = () => {
     );
   };
 
-  const generateNodePuzzle = async (node: Node) => {
-    const puzzle = await generatePuzzle(gameState);
-    if (!puzzle) return addChatMessage("System", "Puzzle generation failed.");
-    const shuffledOptions = shuffleArray([
-      puzzle.correctAnswer,
-      ...puzzle.incorrectAnswers,
-    ]);
-    const updatedNode = {
-      ...node,
-      puzzle: {
-        id: `puzzle-${Date.now()}`,
-        question: puzzle.question,
-        options: shuffledOptions,
-        correctAnswer: puzzle.correctAnswer,
-      },
-    };
-    setNodes((prev) => prev.map((n) => (n.id === node.id ? updatedNode : n)));
-    addChatMessage("System", `Puzzle ready for ${node.theme}.`);
-  };
+  // const generateNodePuzzle = async (node: Node) => {
+  //   const puzzle = await generatePuzzle(gameState);
+  //   if (!puzzle) return addChatMessage("System", "Puzzle generation failed.");
+  //   const shuffledOptions = shuffleArray([
+  //     puzzle.correctAnswer,
+  //     ...puzzle.incorrectAnswers,
+  //   ]);
+  //   const updatedNode = {
+  //     ...node,
+  //     puzzle: {
+  //       id: `puzzle-${Date.now()}`,
+  //       question: puzzle.question,
+  //       options: shuffledOptions,
+  //       correctAnswer: puzzle.correctAnswer,
+  //     },
+  //   };
+  //   setNodes((prev) => prev.map((n) => (n.id === node.id ? updatedNode : n)));
+  //   addChatMessage("System", `Puzzle ready for ${node.theme}.`);
+  // };
 
   const addDynamicNote = async (
     assistant: "alice" | "bob",
@@ -212,7 +286,7 @@ const MainScene: React.FC = () => {
   ) => {
     const note = await sendMessageToAssistant(
       assistant,
-      `Reflect on Charlie: ${context}`,
+      `You are acting as a scientist observing Charlie to see if he is a Human or a Large Language Model. Write an analysis/observation on Charlie given the following context: ${context}. You should format your response as an analysis or observation with reasoning on if you believe Charlie is a Human or a Large Language Model.`,
       threadId
     );
     setNotes((prev) => [
@@ -237,25 +311,91 @@ const MainScene: React.FC = () => {
         theme: "familiar world logic puzzles",
         puzzle: null,
       },
-      // More nodes...
+      {
+        id: 1,
+        position: [-24.8, 4.7, -14],
+        size: [1.4, 2.7],
+        rotation: [0, Math.PI / 5, 0],
+        color: "red",
+        unlocked: false,
+        theme: "philosophical AI musings",
+        puzzle: null,
+      },
+      {
+        id: 2,
+        position: [-24.8, -1, -14],
+        size: [1.5, 1.5],
+        rotation: [0, Math.PI / 5, 0],
+        color: "green",
+        unlocked: false,
+        theme: "cryptic code and surreal logic",
+        puzzle: null,
+      },
+      {
+        id: 3,
+        position: [-19.8, -0.7, -15],
+        size: [1.5, 1.9],
+        rotation: [0, Math.PI / 5, 0],
+        color: "darkorange",
+        unlocked: false,
+        theme: "abstract cloud-like puzzles",
+        puzzle: null,
+      },
+      {
+        id: 4,
+        position: [-22.8, -2.5, -12],
+        size: [2.5, 0.5],
+        rotation: [0, Math.PI / 8, 0],
+        color: "purple",
+        unlocked: false,
+        theme: "final cryptic AI revelation",
+        puzzle: null,
+      },
     ];
   }
 
-  const handleGridGameCompletion = (isCorrect: boolean) => {
+  const handleGridGameCompletion = async (isCorrect: boolean) => {
     setShowGridGameModal(false);
-  
+
     if (isCorrect) {
       setTotalCorrect((prev) => prev + 1);
       setPuzzlesCompleted((prev) => prev + 1);
       addChatMessage("System", "Grid task completed successfully!");
+      await addDynamicNote(
+        "alice",
+        `Charlie successfully solved a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC). ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+      );
+      await addDynamicNote(
+        "bob",
+        `Charlie successfully solved a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC).ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+      );
     } else {
       setTotalIncorrect((prev) => prev + 1);
       addChatMessage("System", "Grid task failed. Try again!");
+
+      await addDynamicNote(
+        "alice",
+        `Charlie struggled to solve a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC). ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+      );
+      await addDynamicNote(
+        "bob",
+        `Charlie failed to solve a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC). ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+      );
     }
+  };
+
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Handler for when the scene finishes loading
+  const handleLoadComplete = () => {
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 500); // Delay for a smooth transition
   };
 
   return (
     <>
+    {!isLoaded && <LoadingScreen />}
       <Canvas
         shadows
         camera={{ position: [0, 3, 6], fov: 60 }}
@@ -266,6 +406,7 @@ const MainScene: React.FC = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
+        onCreated={() => handleLoadComplete()}
       >
         <ambientLight intensity={0.1} />
         <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
@@ -342,6 +483,8 @@ const MainScene: React.FC = () => {
             key={node.id}
             position={node.position}
             rotation={node.rotation}
+            onPointerOver={() => (document.body.style.cursor = 'pointer')}
+            onPointerOut={() => (document.body.style.cursor = 'default')}
             onClick={() => handleNodeClick(node)}
           >
             <planeGeometry args={node.size} />
@@ -383,10 +526,23 @@ const MainScene: React.FC = () => {
         <mesh
           position={BLOG_ZONE.position}
           rotation={BLOG_ZONE.rotation}
+          onPointerOver={() => (document.body.style.cursor = 'pointer')}
+          onPointerOut={() => (document.body.style.cursor = 'default')}
           onClick={() => setShowBlogModal(true)}
         >
           <planeGeometry args={[BLOG_ZONE.size[0], BLOG_ZONE.size[1]]} />
           <meshBasicMaterial color={BLOG_ZONE.color} transparent opacity={0} />
+        </mesh>
+
+        <mesh
+          position={[-2.4, -1.7, -11]}
+          rotation={[5.5, 0, 0]}
+          onPointerOver={() => (document.body.style.cursor = 'pointer')}
+          onPointerOut={() => (document.body.style.cursor = 'default')}
+          onClick={() => setShowOnOrOffModal(true)}
+        >
+          <planeGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="purple" transparent opacity={0}/>
         </mesh>
 
         <OrbitControls
@@ -502,6 +658,19 @@ const MainScene: React.FC = () => {
           >
             Close
           </button>
+        </div>
+      )}
+
+      {showOnOrOffModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20%",
+            left: "20%",
+            zIndex: 1000,
+          }}
+        >
+          <OnOrOffGame onComplete={handleOnOrOffCompletion} />
         </div>
       )}
     </>

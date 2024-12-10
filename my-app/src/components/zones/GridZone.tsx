@@ -7,9 +7,20 @@ interface GridZoneProps {
   onClick: () => void;
 }
 
-const GridZone: React.FC<GridZoneProps> = ({ position, rotation, size, onClick }) => {
+const GridZone: React.FC<GridZoneProps> = ({
+  position,
+  rotation,
+  size,
+  onClick,
+}) => {
   return (
-    <mesh position={position} rotation={rotation} onClick={onClick}>
+    <mesh
+      onPointerOver={() => (document.body.style.cursor = "pointer")}
+      onPointerOut={() => (document.body.style.cursor = "default")}
+      position={position}
+      rotation={rotation}
+      onClick={onClick}
+    >
       <planeGeometry args={size} />
       <meshBasicMaterial color="purple" transparent opacity={0} />
     </mesh>

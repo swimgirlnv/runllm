@@ -5,7 +5,9 @@ function TestScene() {
     <Canvas>
       <ambientLight />
       <directionalLight />
-      <mesh>
+      <mesh
+      onPointerOver={() => (document.body.style.cursor = 'pointer')}
+      onPointerOut={() => (document.body.style.cursor = 'default')}>
         <boxGeometry />
         <meshStandardMaterial color="orange" />
       </mesh>

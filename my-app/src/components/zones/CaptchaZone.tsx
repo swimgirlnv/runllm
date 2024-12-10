@@ -14,9 +14,15 @@ const CaptchaZone: React.FC<CaptchaZoneProps> = ({
   onClick,
 }) => {
   return (
-    <mesh position={position} rotation={rotation} onClick={onClick}>
+    <mesh
+      onPointerOver={() => (document.body.style.cursor = "pointer")}
+      onPointerOut={() => (document.body.style.cursor = "default")}
+      position={position}
+      rotation={rotation}
+      onClick={onClick}
+    >
       <planeGeometry args={size} />
-      <meshBasicMaterial color="yellow" transparent opacity={0.5} />
+      <meshBasicMaterial color="yellow" transparent opacity={0} />
     </mesh>
   );
 };
