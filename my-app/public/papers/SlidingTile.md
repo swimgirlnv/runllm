@@ -1,4 +1,4 @@
-## Title: Evaluating Sliding Tile Puzzles as a Turing Test for Distinguishing Humans from Large Language Models
+## Evaluating Sliding Tile Puzzles as a Turing Test for Distinguishing Humans from Large Language Models
 
 ### Abstract
 > As artificial intelligence (AI) systems, specifically large language models (LLMs), become increasingly sophisticated, novel and creative methods for testing their cognitive abilities are necessary. This paper explores the use of sliding tile puzzles—a classic problem-solving task—as a tool to evaluate the cognitive capabilities of humans and AI systems. We argue that sliding tile puzzles are an effective and insightful test for distinguishing humans from LLMs due to their reliance on spatial reasoning, iterative planning, and adaptive problem-solving, skills that are not inherent to language models. Furthermore, we analyze how these puzzles leverage a combination of domain-general reasoning and task-specific constraints to provide a robust benchmark for human-AI differentiation.

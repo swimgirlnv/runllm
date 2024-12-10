@@ -28,6 +28,7 @@ import OnOrOffGame from "../components/herring/OnOrOffGame";
 import LoadingScreen from "../components/LoadingScene";
 import PaperModal from "../components/zones/PaperModal";
 import DevToolsDrawer from "../components/devtools/DevToolsDrawer";
+import Tooltip from "../components/ToolTip";
 
 export type GameState = "Act1" | "Act2" | "Act3" | "Act4";
 
@@ -566,6 +567,7 @@ const MainScene: React.FC = () => {
         />
 
         {/* Blog Zone */}
+        <Tooltip message="Beyond the Loop" offset={[0, -4, 0]}>
         <mesh
           position={BLOG_ZONE.position}
           rotation={BLOG_ZONE.rotation}
@@ -576,6 +578,9 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[BLOG_ZONE.size[0], BLOG_ZONE.size[1]]} />
           <meshBasicMaterial color={BLOG_ZONE.color} transparent opacity={0} />
         </mesh>
+        </Tooltip>
+
+        {/* Grid Game */}
 
         {/* DevTools Mesh */}
         <mesh
@@ -589,7 +594,8 @@ const MainScene: React.FC = () => {
           <meshStandardMaterial color="blue" transparent opacity={0}/>
         </mesh>
 
-        {/* Sliding Tile Paper Mesh */}
+        {/* On/Off Paper Mesh */}
+        <Tooltip message="On/Off Game" offset={[0, -4, 0]}>
         <mesh
           position={[-2.4, -1.7, -11]}
           rotation={[5.5, 0, 0]}
@@ -600,8 +606,10 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[1, 1]} />
           <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
+        </Tooltip>
 
         {/* Sliding Tile Paper Mesh */}
+        <Tooltip message="Evaluating Sliding Tile Puzzles" offset={[0, -4, 0]}>
         <mesh
           position={[19.4, -2.2, -13]}
           rotation={[0, 5.65, 0]}
@@ -612,8 +620,10 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[2, 0.2]} />
           <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
+        </Tooltip>
 
         {/* On/Off Paper Mesh */}
+        <Tooltip message="Evaluating the On/Off Game" offset={[0, -4, 0]}>
         <mesh
           position={[19.4, -2.5, -13]}
           rotation={[0, 5.65, 0]}
@@ -624,8 +634,10 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[2, 0.2]} />
           <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
+        </Tooltip>
 
         {/* ARC Paper Mesh */}
+        <Tooltip message="On the Measure of Intelligence" offset={[0, -4, 0]}>
         <mesh
           position={[19.6, -2.8, -13]}
           rotation={[0, 5.65, 0]}
@@ -636,8 +648,10 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[2, 0.2]} />
           <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
+        </Tooltip>
 
         {/* In Favor Paper Mesh */}
+        <Tooltip message="Distinguishing the Human Mind" offset={[0, -4, 0]}>
         <mesh
           position={[19.6, -3, -12.8]}
           rotation={[0, 5.65, 0]}
@@ -648,8 +662,10 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[2, 0.2]} />
           <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
+        </Tooltip>
 
         {/* Against Paper Mesh */}
+        <Tooltip message="Anthropomorphization of Machines" offset={[0, -4, 0]}>
         <mesh
           position={[19.6, -3.3, -12.8]}
           rotation={[0, 5.65, 0]}
@@ -660,8 +676,24 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[2, 0.2]} />
           <meshStandardMaterial color="purple"  transparent opacity={0} />
         </mesh>
+        </Tooltip>
+
+        {/* Formula Paper Mesh */}
+        <Tooltip message="Quantifying Humanity" offset={[0, -4, 0]}>
+        <mesh
+          position={[19.3, -3.5, -12.3]}
+          rotation={[0, 5.65, 0]}
+          onClick={() => handlePaperClick("Formula")}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "default")}
+        >
+          <planeGeometry args={[2, 0.2]} />
+          <meshStandardMaterial color="purple" transparent opacity={0} />
+        </mesh>
+        </Tooltip>
 
         {/* Training Manual Paper Mesh */}
+        <Tooltip message="Training Manual" offset={[0, -4, 0]}>
         <mesh
           position={[18, -3.9, -11]}
           rotation={[0, 5.65, 0]}
@@ -672,6 +704,7 @@ const MainScene: React.FC = () => {
           <planeGeometry args={[2, 0.2]} />
           <meshStandardMaterial color="purple" transparent opacity={0} />
         </mesh>
+        </Tooltip>
 
         <OrbitControls
           enablePan={false}

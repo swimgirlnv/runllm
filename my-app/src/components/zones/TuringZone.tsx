@@ -1,4 +1,5 @@
 import React from "react";
+import Tooltip from "../ToolTip";
 
 interface TuringZoneProps {
   position: [number, number, number];
@@ -14,16 +15,18 @@ const TuringZone: React.FC<TuringZoneProps> = ({
   onClick,
 }) => {
   return (
-    <mesh
-      onPointerOver={() => (document.body.style.cursor = "pointer")}
-      onPointerOut={() => (document.body.style.cursor = "default")}
-      position={position}
-      rotation={rotation}
-      onClick={onClick}
-    >
-      <planeGeometry args={size} />
-      <meshBasicMaterial color="cyan" transparent opacity={0} />
-    </mesh>
+    <Tooltip message="Turing Test" offset={[0, -4, 0]}>
+      <mesh
+        onPointerOver={() => (document.body.style.cursor = "pointer")}
+        onPointerOut={() => (document.body.style.cursor = "default")}
+        position={position}
+        rotation={rotation}
+        onClick={onClick}
+      >
+        <planeGeometry args={size} />
+        <meshBasicMaterial color="cyan" transparent opacity={0} />
+      </mesh>
+    </Tooltip>
   );
 };
 

@@ -1,6 +1,6 @@
-### Title: Against the Anthropomorphization of Machines: Why “Am I a Large Language Model?” is the Wrong Question
+### Against the Anthropomorphization of Machines: Why “Am I a Large Language Model?” is the Wrong Question
 
-Abstract
+#### Abstract
 > The question, “Am I a large language model? What makes us so different from a computer?” reflects a profound misunderstanding of artificial intelligence (AI) and its capabilities. While engaging, this inquiry risks conflating human cognitive processes with computational operations, encouraging anthropomorphization and overlooking critical distinctions between humans and machines. This paper argues that such comparisons misframe the discourse on intelligence, shifting focus away from meaningful discussions about AI’s role, limitations, and ethical implications. By examining the fundamental differences in structure, purpose, and agency, we propose that this question is not only misleading but also unproductive for advancing understanding in AI research and philosophy.
 
 #### 1. Introduction

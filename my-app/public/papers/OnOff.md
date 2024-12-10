@@ -1,4 +1,4 @@
-## Title: Evaluating the On/Off Game as a Turing Test for Differentiating Humans from Large Language Models
+## Evaluating the On/Off Game as a Turing Test for Differentiating Humans from Large Language Models
 
 ### Abstract
 
