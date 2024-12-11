@@ -1,12 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface DevToolsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   logs: string[];
+  setMode: (mode: "charliemode" | "rqwmode") => void; // Add prop to update mode
 }
 
-const DevToolsDrawer: React.FC<DevToolsDrawerProps> = ({ isOpen, onClose, logs }) => {
+const DevToolsDrawer: React.FC<DevToolsDrawerProps> = ({ isOpen, onClose, logs, setMode }) => {
+  const [command, setCommand] = useState("");
+
+  const handleCommandInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCommand(e.target.value);
+  };
+
+  const handleCommandSubmit = () => {
+    if (command === "/charliemode") {
+      setMode("charliemode");
+      logs.push("Switched to Charlie mode");
+    } else if (command === "/rqwmode") {
+      setMode("rqwmode");
+      logs.push("Switched to RQW mode");
+    } else {
+      logs.push(`${command}`);
+    }
+    setCommand(""); // Clear input after submission
+  };
 
   return (
     <div
@@ -53,9 +72,39 @@ const DevToolsDrawer: React.FC<DevToolsDrawerProps> = ({ isOpen, onClose, logs }
           </p>
         ))}
       </div>
+      <div style={{ marginTop: "20px", borderTop: "1px solid #444", paddingTop: "10px" }}>
+        <input
+          type="text"
+          value={command}
+          onChange={handleCommandInput}
+          placeholder=">"
+          style={{
+            width: "calc(100% - 10px)",
+            padding: "5px",
+            backgroundColor: "#333",
+            color: "#61dafb",
+            border: "1px solid #555",
+            borderRadius: "4px",
+          }}
+        />
+        <button
+          onClick={handleCommandSubmit}
+          style={{
+            marginTop: "10px",
+            padding: "5px 10px",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            width: "100%",
+          }}
+        >
+          Submit Command
+        </button>
+      </div>
     </div>
   );
 };
-
 
 export default DevToolsDrawer;

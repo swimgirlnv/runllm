@@ -683,6 +683,17 @@ const MainScene: React.FC = () => {
 
   const HQ = calculateHQ();
 
+  const [mode, setMode] = useState<"charliemode" | "rqwmode">("charliemode");
+
+  const getPaperAccessible = (paper: string): boolean => {
+    if (mode === "rqwmode") {
+      return true; // All papers accessible in rqwmode
+    }
+    const requiredHQ = paperHQRequirements[paper];
+    return HQ <= requiredHQ; // Regular HQ check in charliemode
+  };
+
+
   return (
     <>
       {!isLoaded && <LoadingScreen />}
@@ -929,37 +940,34 @@ const MainScene: React.FC = () => {
           <meshStandardMaterial color="blue" transparent opacity={0} />
         </mesh>
 
-        {Object.entries(paperHQRequirements).map(([paper, requiredHQ]) => (
-          <Tooltip
-            key={paper}
-            message={getTooltipMessage(paper)}
-            offset={[0, -4, 0]}
+        {Object.entries(paperHQRequirements).map(([paper]) => (
+        <Tooltip key={paper} message={getTooltipMessage(paper)} offset={[0, -4, 0]}>
+          <mesh
+            position={getPaperPosition(paper)}
+            rotation={getPaperRotation(paper)}
+            onPointerOver={() => {
+              document.body.style.cursor = getPaperAccessible(paper)
+                ? "pointer"
+                : "default";
+            }}
+            onPointerOut={() => {
+              document.body.style.cursor = "default";
+            }}
+            onClick={() => {
+              if (getPaperAccessible(paper)) {
+                handlePaperClick(paper);
+              } else {
+                alert(
+                  `Access denied. Current HQ: ${HQ.toFixed(2)}, Required HQ: ${paperHQRequirements[paper]}`
+                );
+              }
+            }}
           >
-            <mesh
-              position={getPaperPosition(paper)}
-              rotation={getPaperRotation(paper)}
-              onPointerOver={() => {
-                document.body.style.cursor =
-                  HQ <= requiredHQ ? "pointer" : "default";
-              }}
-              onPointerOut={() => {
-                document.body.style.cursor = "default";
-              }}
-              onClick={() => {
-                if (HQ <= requiredHQ) {
-                  handlePaperClick(paper);
-                } else {
-                  alert(
-                    `You do not have access to this paper.`
-                  );
-                }
-              }}
-            >
-              <planeGeometry args={[1, 1]} />
-              <meshStandardMaterial color="purple" transparent opacity={0} />
-            </mesh>
-          </Tooltip>
-        ))}
+            <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+      ))}
 
         <OrbitControls
           enablePan={false}
@@ -1302,10 +1310,12 @@ const MainScene: React.FC = () => {
         </div>
       )}
 
+      {/* Developer Tools */}
       <DevToolsDrawer
         isOpen={isDevToolsOpen}
         logs={devToolLogs}
         onClose={() => setDevToolsOpen(false)}
+        setMode={setMode} // Pass setMode to the dev tools
       />
     </>
   );
