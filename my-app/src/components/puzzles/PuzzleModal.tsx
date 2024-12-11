@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface PuzzleModalProps {
   isOpen: boolean;
   puzzle: {
     id: string;
     question: string;
+    correctAnswer: string;
     options: string[];
   } | null;
   onClose: () => void;
-  handleAnswer: (puzzleId: string, selectedOption: string) => void;
-  reportObservation: (observation: string) => void; // Report to Observation Dashboard
-  logToDevTools: (message: string) => void; // Log to DevToolDrawer
+  handleAnswer: (puzzleId: string, isCorrect: boolean) => void;
+  reportObservation: (observation: string) => void;
+  logToDevTools: (message: string) => void;
 }
 
 const PuzzleModal: React.FC<PuzzleModalProps> = ({
@@ -21,19 +22,35 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   reportObservation,
   logToDevTools,
 }) => {
-  const [isReporting, setIsReporting] = useState(false); // Show report text field
-  const [reportInput, setReportInput] = useState(""); // Report input field
+  
+  const [isReporting, setIsReporting] = useState(false); // Toggle report input
+  const [reportInput, setReportInput] = useState(""); // User input for reporting
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log("Modal opened");
+    }
+  }, [isOpen, puzzle]);
 
   if (!isOpen || !puzzle) return null;
+
+  if (!isOpen || !puzzle) return null;
+
+  const handleOptionClick = (selectedOption: string) => {
+    const isCorrect =
+      selectedOption.trim().toLowerCase() ===
+      puzzle.correctAnswer.trim().toLowerCase();
+    handleAnswer(puzzle.id, isCorrect);
+    onClose(); // Close modal after answering
+  };
 
   const handleReportSubmit = () => {
     if (reportInput.trim()) {
       const observationMessage = `Glitch Report: "${reportInput}" reported for puzzle "${puzzle.question}".`;
-      reportObservation(observationMessage); // Send to Observation Dashboard
-      logToDevTools(observationMessage); // Log to DevToolDrawer
-      setReportInput(""); // Clear input
-      setIsReporting(false); // Close reporting field
-      onClose(); // Close the modal
+      reportObservation(observationMessage);
+      logToDevTools(observationMessage);
+      setReportInput("");
+      setIsReporting(false);
       alert("Thank you for reporting the glitch!");
     } else {
       alert("Please provide details for the report.");
@@ -52,12 +69,13 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
         borderRadius: "8px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
         zIndex: 10,
-        width: "400px",
+        maxWidth: "500px",
+        width: "90%",
       }}
     >
       {/* Report glitch button */}
       <button
-        onClick={() => setIsReporting((prev) => !prev)} // Toggle reporting field
+        onClick={() => setIsReporting((prev) => !prev)}
         style={{
           position: "absolute",
           top: "10px",
@@ -77,42 +95,48 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
       </button>
 
       {/* Puzzle content */}
-      <h3>{puzzle.question}</h3>
+      <h3 style={{ marginBottom: "20px", textAlign: "center" }}>Question</h3>
+      <p style={{ marginBottom: "20px", lineHeight: "1.5" }}>{puzzle.question}</p>
+
       <div>
         {puzzle.options.map((option, index) => (
           <button
             key={index}
-            onClick={() => handleAnswer(puzzle.id, option)} // Pass both the puzzle ID and the selected option
+            onClick={() => handleOptionClick(option)}
             style={{
+              width: "100%",
               margin: "10px 0",
               padding: "10px",
-              width: "100%",
-              backgroundColor: "#f0f0f0",
-              border: "1px solid black",
+              backgroundColor: "#f9f9f9",
+              border: "1px solid #ccc",
               borderRadius: "4px",
               cursor: "pointer",
+              textAlign: "left",
             }}
           >
             {option}
           </button>
         ))}
       </div>
+
+      {/* Close modal button */}
       <button
         onClick={onClose}
         style={{
-          marginTop: "10px",
+          marginTop: "20px",
           padding: "10px",
           backgroundColor: "#d9534f",
           color: "white",
           border: "none",
           borderRadius: "4px",
           cursor: "pointer",
+          width: "100%",
         }}
       >
         Close
       </button>
 
-      {/* Reporting text field */}
+      {/* Reporting input */}
       {isReporting && (
         <div style={{ marginTop: "20px" }}>
           <textarea
@@ -125,6 +149,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
               padding: "8px",
               borderRadius: "4px",
               border: "1px solid #ccc",
+              resize: "none",
             }}
           />
           <button

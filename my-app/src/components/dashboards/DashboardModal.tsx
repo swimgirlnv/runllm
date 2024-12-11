@@ -6,6 +6,10 @@ interface DashboardModalProps {
   totalIncorrect: number;
   puzzlesCompleted: number;
   turingTestResults: number; // Percentage or score from Turing Tests
+  onOffStats: { trained: boolean; time: number; ruleMatch: boolean } | null;
+  lightConnectionStats: { trained: boolean; time: number; ruleMatch: boolean } | null;
+  arcStats: { success: boolean; attempts: number } | null;
+  slidingTileStats: { completed: boolean; time: number } | null;
   onClose: () => void;
 }
 
@@ -15,6 +19,10 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   totalIncorrect,
   puzzlesCompleted,
   turingTestResults,
+  onOffStats,
+  lightConnectionStats,
+  arcStats,
+  slidingTileStats,
   onClose,
 }) => {
   if (!isOpen) return null;
@@ -27,6 +35,27 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   const logicBias = Math.min(puzzlesCompleted * 15, 100); // Simplified calculation
   const creativityIndex = Math.max(100 - logicBias, 20); // Inverse relationship
   const emotionalDivergence = 1 + turingTestResults / 100; // Range from 1.0–2.0
+
+  // Add stats from specific games
+  const onOffSummary = onOffStats
+    ? `Trained: ${onOffStats.trained ? "Yes" : "No"}, Time: ${onOffStats.time}s, Rule Match: ${
+        onOffStats.ruleMatch ? "Yes" : "No"
+      }`
+    : "Not attempted";
+
+  const lightConnectionSummary = lightConnectionStats
+    ? `Trained: ${lightConnectionStats.trained ? "Yes" : "No"}, Time: ${lightConnectionStats.time}s, Rule Match: ${
+        lightConnectionStats.ruleMatch ? "Yes" : "No"
+      }`
+    : "Not attempted";
+
+  const arcSummary = arcStats
+    ? `Success: ${arcStats.success ? "Yes" : "No"}, Attempts: ${arcStats.attempts}`
+    : "Not attempted";
+
+  const slidingTileSummary = slidingTileStats
+    ? `Completed: ${slidingTileStats.completed ? "Yes" : "No"}, Time: ${slidingTileStats.time}s`
+    : "Not attempted";
 
   // HQ Formula
   const HQ =
@@ -66,6 +95,20 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
       </p>
       <p>
         <strong>Success Rate:</strong> {successRate.toFixed(2)}%
+      </p>
+      <hr />
+      <h3>Game Results</h3>
+      <p>
+        <strong>On/Off Game:</strong> {onOffSummary}
+      </p>
+      <p>
+        <strong>Light Connection Game:</strong> {lightConnectionSummary}
+      </p>
+      <p>
+        <strong>ARC Game:</strong> {arcSummary}
+      </p>
+      <p>
+        <strong>Sliding Tile Game:</strong> {slidingTileSummary}
       </p>
       <hr />
       <h3>Humanity Quotient (HQ): {HQ.toFixed(2)}</h3>

@@ -111,7 +111,7 @@ export const generatePuzzle = async (
 ): Promise<{
   question: string;
   correctAnswer: string;
-  incorrectAnswers: string[];
+  options: string[];
 } | null> => {
   let context = "";
   switch (gameState) {
@@ -150,29 +150,35 @@ export const generatePuzzle = async (
   const content = response.choices?.[0]?.message?.content?.trim();
   if (!content) return null;
 
-  // Log the extracted content to DevToolDrawer and console (only once per call)
-  const contentMessage = `${content}`;
-  console.log(contentMessage);
-  addToDevToolLogs(contentMessage);
+  // Log the extracted content to DevToolDrawer and console
+  console.log(content);
+  addToDevToolLogs(content);
 
   // Extract question, correct answer, and incorrect answers
   const lines = content.split("\n").map((line) => line.trim());
-  const question = lines.shift();
-  const correctAnswerLine = lines
-    .find((line) => line.startsWith("*"))
-    ?.replace("*", "")
-    .trim();
-  const incorrectAnswers = lines
-    .filter((line) => !line.startsWith("*"))
-    .map((line) => line.trim());
+  const correctAnswerIndex = lines.findIndex((line) => line.startsWith("*"));
 
-  if (!question || !correctAnswerLine || incorrectAnswers.length < 2)
+  if (correctAnswerIndex === -1) {
+    console.error("No correct answer found!");
     return null;
+  }
 
+  const question = lines.slice(0, correctAnswerIndex).join(" ");
+  const correctAnswer = lines[correctAnswerIndex].replace("*", "").trim();
+  const incorrectAnswers = lines.slice(correctAnswerIndex + 1);
+
+  if (!question || !correctAnswer || incorrectAnswers.length < 2) {
+    console.error("Invalid puzzle format!");
+    return null;
+  }
+
+  // Return parsed puzzle
   return {
     question,
-    correctAnswer: correctAnswerLine,
-    incorrectAnswers,
+    correctAnswer,
+    options: [correctAnswer, ...incorrectAnswers].sort(
+      () => Math.random() - 0.5
+    ), // Shuffle options
   };
 };
 

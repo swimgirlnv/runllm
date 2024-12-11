@@ -2,12 +2,17 @@ import React, { useState, useEffect } from "react";
 
 const TILE_SIZE = 100; // Size of each tile (in pixels)
 
-const SlidingTileGame: React.FC<{ imageUrl: string; onComplete: () => void }> = ({
+const SlidingTileGame: React.FC<{ imageUrl: string; onStart?: () => void; onComplete: () => void }> = ({
   imageUrl,
+  onStart,
   onComplete,
 }) => {
   const GRID_SIZE = 3; // 3x3 grid
   const EMPTY_TILE = GRID_SIZE * GRID_SIZE - 1;
+
+  React.useEffect(() => {
+    if (onStart) onStart(); // Trigger onStart when the component mounts
+  }, [onStart]);
 
   // Generate initial tiles (in order)
   const generateTiles = () =>

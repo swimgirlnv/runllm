@@ -29,6 +29,7 @@ import LoadingScreen from "../components/LoadingScene";
 import PaperModal from "../components/zones/PaperModal";
 import DevToolsDrawer from "../components/devtools/DevToolsDrawer";
 import Tooltip from "../components/ToolTip";
+import LightConnectionGame from "../components/herring/LightConnection";
 
 export type GameState = "Act1" | "Act2" | "Act3" | "Act4";
 
@@ -86,10 +87,26 @@ const MainScene: React.FC = () => {
   const [captchaData, setCaptchaData] = useState<any | null>(null);
 
   const [showOnOrOffModal, setShowOnOrOffModal] = useState(false);
-  const [_trainingStats, setTrainingStats] = useState<{
+  const [trainingStatsOnOff, setTrainingStatsOnOff] = useState<{
     time: number;
     ruleMatch: boolean;
     trained: boolean;
+  } | null>(null);
+
+  const [trainingStatsLightConnection, setTrainingStatsLightConnection] = useState<{
+    time: number;
+    ruleMatch: boolean;
+    trained: boolean;
+  } | null>(null);
+
+  const [arcStats] = useState<{
+    success: boolean;
+    attempts: number;
+  } | null>(null);
+
+  const [slidingTileStats, setSlidingTileStats] = useState<{
+    completed: boolean;
+    time: number;
   } | null>(null);
 
   const handleOnOrOffCompletion = async (stats: {
@@ -98,7 +115,7 @@ const MainScene: React.FC = () => {
     ruleMatch: boolean;
   }) => {
     setShowOnOrOffModal(false);
-    setTrainingStats(stats);
+    setTrainingStatsOnOff(stats);
     await addDynamicNote(
       "alice",
       `Charlie was successfully trained to recognize the On and Off patterns in a simple game. Time taken: ${
@@ -114,6 +131,49 @@ const MainScene: React.FC = () => {
       }s. Rule Match: ${
         stats.ruleMatch ? "Yes" : "No"
       }.Does this mean he is thinking like a human or a machine?`
+    );
+  };
+
+  // Handlers for Light Connection Game
+  const handleLightConnectionCompletion = async (stats: {
+    trained: boolean;
+    time: number;
+    ruleMatch: boolean;
+  }) => {
+    setTrainingStatsLightConnection(stats);
+    await addDynamicNote(
+      "alice",
+      `Charlie solved the Light Connection puzzle. Time taken: ${
+        stats.time
+      }s. Rule Match: ${
+        stats.ruleMatch ? "Yes" : "No"
+      }. Was this understanding intuitive or mechanical?`
+    );
+    await addDynamicNote(
+      "bob",
+      `Charlie successfully solved the Light Connection puzzle. Time taken: ${
+        stats.time
+      }s. Rule Match: ${
+        stats.ruleMatch ? "Yes" : "No"
+      }. Is this more human creativity or algorithmic deduction?`
+    );
+  };
+
+  // Handlers for Sliding Tile Game
+  const [slidingTileStartTime, setSlidingTileStartTime] = useState<number | null>(null);
+
+  const handleSlidingTileCompletion = async (completed: boolean, time: number) => {
+    setSlidingTileStats({ completed, time });
+    const resultMessage = completed
+      ? `Charlie completed the sliding tile puzzle in ${time}s.`
+      : "Charlie struggled with the sliding tile puzzle.";
+    await addDynamicNote(
+      "alice",
+      `${resultMessage} Was this visual-spatial reasoning or just trial and error?`
+    );
+    await addDynamicNote(
+      "bob",
+      `${resultMessage} Sliding puzzles test cognitive and motor skills. Was this human intuition at work?`
     );
   };
 
@@ -180,55 +240,47 @@ const MainScene: React.FC = () => {
   // Puzzle Interaction
   const handleNodeClick = async (node: Node) => {
     if (!node.unlocked) {
-      addChatMessage("System", `You do not have access yet.`);
+      addChatMessage("System", "You do not have access yet.");
       return;
     }
 
     if (!node.puzzle) {
-      const newPuzzleContent = await generatePuzzle(gameState, addToDevToolLogs); // Generate puzzle based on the theme
-
+      const newPuzzleContent = await generatePuzzle(
+        gameState,
+        addToDevToolLogs
+      );
       if (!newPuzzleContent) {
         addChatMessage("System", "Error generating puzzle. Try again later!");
         return;
       }
 
-      const question = newPuzzleContent.question;
-      const correctAnswerLine = newPuzzleContent.correctAnswer;
-      if (!correctAnswerLine) {
-        addChatMessage("System", "Error: No correct answer found in puzzle.");
-        return;
-      }
-      const correctAnswer = correctAnswerLine.replace("*", "").trim();
-      const incorrectAnswers = newPuzzleContent.incorrectAnswers;
+      const { question, correctAnswer, options } = newPuzzleContent;
 
       const newPuzzle = {
-        id: `puzzle-${Date.now()}`,
+        id: node.id.toString(),
         question,
-        options: [correctAnswer, ...incorrectAnswers].sort(
-          () => Math.random() - 0.5
-        ),
         correctAnswer,
+        options,
       };
 
+      // Update nodes
       setNodes((prev) =>
         prev.map((n) => (n.id === node.id ? { ...n, puzzle: newPuzzle } : n))
       );
 
-      addChatMessage("System", `Double click to access this puzzle.`);
+      // Pass puzzle directly to activeNode
+      setActiveNode({ ...node, puzzle: newPuzzle });
+      return;
     }
 
     setActiveNode(node);
   };
 
-  const handlePuzzleAnswer = async (
-    puzzleId: string,
-    selectedOption: string
-  ) => {
+  const handlePuzzleAnswer = async (puzzleId: string, isCorrect: boolean) => {
     const node = nodes.find((n) => n.puzzle?.id === puzzleId);
     if (!node || !node.puzzle)
       return addChatMessage("System", "Puzzle not found!");
 
-    const isCorrect = selectedOption === node.puzzle.correctAnswer;
     if (isCorrect) {
       setTotalCorrect((prev) => prev + 1);
       setPuzzlesCompleted((prev) => prev + 1);
@@ -245,7 +297,6 @@ const MainScene: React.FC = () => {
     } else {
       setTotalIncorrect((prev) => prev + 1);
       addChatMessage("Bob", "Incorrect. Try again.");
-
       await addDynamicNote(
         "alice",
         `Charlie struggled to solve a puzzle in the "${node.theme}" theme. What does that say about their reasoning ability?`
@@ -365,35 +416,40 @@ const MainScene: React.FC = () => {
     ];
   }
 
-  const handleGridGameCompletion = async (isCorrect: boolean) => {
+  const handleGridGameCompletion = async (
+    isCorrect: boolean,
+    time: number,
+    attempts: number
+  ) => {
     setShowGridGameModal(false);
-
+  
     if (isCorrect) {
       setTotalCorrect((prev) => prev + 1);
       setPuzzlesCompleted((prev) => prev + 1);
-      addChatMessage("System", "Grid task completed successfully!");
+      addChatMessage("System", `Grid task completed in ${time.toFixed(2)} seconds with ${attempts} attempts!`);
       await addDynamicNote(
         "alice",
-        `Charlie successfully solved a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC). ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+        `Charlie successfully solved a François Chollet measure of intelligence test in ${time.toFixed(2)} seconds and ${attempts} attempts.`
       );
       await addDynamicNote(
         "bob",
-        `Charlie successfully solved a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC).ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+        `Charlie successfully completed the ARC-inspired grid task. Does this suggest human-like intuition or something more algorithmic?`
       );
     } else {
       setTotalIncorrect((prev) => prev + 1);
       addChatMessage("System", "Grid task failed. Try again!");
-
       await addDynamicNote(
         "alice",
-        `Charlie struggled to solve a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC). ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+        `Charlie struggled with a François Chollet measure of intelligence test after ${attempts} attempts.`
       );
       await addDynamicNote(
         "bob",
-        `Charlie failed to solve a François Chollet measure of intelligence test from the Abstraction and Reasoning Corpus (ARC). ARC can be used to measure a human-like form of general fluid intelligence and that it enables fair general intelligence comparisons between AI systems and humans.`
+        `Charlie failed the ARC-inspired grid task. Does this indicate a need for more structured reasoning?`
       );
     }
   };
+
+  const [showLightConnectionModal, setShowLightConnectionModal] = useState(false);
 
   // LOAD SCREEN
   const [isLoaded, setIsLoaded] = useState(false);
@@ -421,7 +477,6 @@ const MainScene: React.FC = () => {
   const [devToolLogs, setDevToolLogs] = useState<string[]>([]);
   const [observations, setObservations] = useState<string[]>([]);
 
-
   const handleMeshClick = () => {
     setDevToolsOpen(true);
   };
@@ -434,7 +489,6 @@ const MainScene: React.FC = () => {
     setObservations((prev) => [...prev, observation]);
     console.log("Observation reported:", observation);
   };
-
 
   return (
     <>
@@ -568,142 +622,191 @@ const MainScene: React.FC = () => {
 
         {/* Blog Zone */}
         <Tooltip message="Beyond the Loop" offset={[0, -4, 0]}>
-        <mesh
-          position={BLOG_ZONE.position}
-          rotation={BLOG_ZONE.rotation}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-          onClick={() => setShowBlogModal(true)}
-        >
-          <planeGeometry args={[BLOG_ZONE.size[0], BLOG_ZONE.size[1]]} />
-          <meshBasicMaterial color={BLOG_ZONE.color} transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={BLOG_ZONE.position}
+            rotation={BLOG_ZONE.rotation}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+            onClick={() => setShowBlogModal(true)}
+          >
+            <planeGeometry args={[BLOG_ZONE.size[0], BLOG_ZONE.size[1]]} />
+            <meshBasicMaterial
+              color={BLOG_ZONE.color}
+              transparent
+              opacity={0}
+            />
+          </mesh>
         </Tooltip>
 
         {/* Grid Game */}
 
+        {/* Light Connection Game Mesh */}
+        <Tooltip message="Light Connection Game" offset={[0, -4, 0]}>
+          <mesh
+            position={[2, -1.9, -11]} // Adjust the position as needed
+            rotation={[5.5, 0, 0]}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+            onClick={() => setShowLightConnectionModal(true)} // Open modal on click
+          >
+            <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
         {/* DevTools Mesh */}
         <mesh
-          position={[7.2, .5, -13.5]}
+          position={[7.2, 0.5, -13.5]}
           rotation={[5.5, 0, 0]}
           onPointerOver={() => (document.body.style.cursor = "pointer")}
           onPointerOut={() => (document.body.style.cursor = "default")}
           onClick={handleMeshClick}
         >
           <planeGeometry args={[1, 1]} />
-          <meshStandardMaterial color="blue" transparent opacity={0}/>
+          <meshStandardMaterial color="blue" transparent opacity={0} />
         </mesh>
 
         {/* On/Off Paper Mesh */}
         <Tooltip message="On/Off Game" offset={[0, -4, 0]}>
-        <mesh
-          position={[-2.4, -1.7, -11]}
-          rotation={[5.5, 0, 0]}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-          onClick={() => setShowOnOrOffModal(true)}
-        >
-          <planeGeometry args={[1, 1]} />
-          <meshStandardMaterial color="purple" transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[-2.4, -1.7, -11]}
+            rotation={[5.5, 0, 0]}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+            onClick={() => setShowOnOrOffModal(true)}
+          >
+            <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         {/* Sliding Tile Paper Mesh */}
         <Tooltip message="Evaluating Sliding Tile Puzzles" offset={[0, -4, 0]}>
-        <mesh
-          position={[19.4, -2.2, -13]}
-          rotation={[0, 5.65, 0]}
-          onClick={() => handlePaperClick("SlidingTile")}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-        >
-          <planeGeometry args={[2, 0.2]} />
-          <meshStandardMaterial color="purple" transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[19.4, -2.2, -13]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("SlidingTile")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         {/* On/Off Paper Mesh */}
         <Tooltip message="Evaluating the On/Off Game" offset={[0, -4, 0]}>
-        <mesh
-          position={[19.4, -2.5, -13]}
-          rotation={[0, 5.65, 0]}
-          onClick={() => handlePaperClick("OnOff")}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-        >
-          <planeGeometry args={[2, 0.2]} />
-          <meshStandardMaterial color="purple" transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[19.4, -2.5, -13]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("OnOff")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         {/* ARC Paper Mesh */}
         <Tooltip message="On the Measure of Intelligence" offset={[0, -4, 0]}>
-        <mesh
-          position={[19.6, -2.8, -13]}
-          rotation={[0, 5.65, 0]}
-          onClick={() => handlePaperClick("ARC")}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-        >
-          <planeGeometry args={[2, 0.2]} />
-          <meshStandardMaterial color="purple" transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[19.6, -2.8, -13]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("ARC")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         {/* In Favor Paper Mesh */}
         <Tooltip message="Distinguishing the Human Mind" offset={[0, -4, 0]}>
-        <mesh
-          position={[19.6, -3, -12.8]}
-          rotation={[0, 5.65, 0]}
-          onClick={() => handlePaperClick("InFavor")}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-        >
-          <planeGeometry args={[2, 0.2]} />
-          <meshStandardMaterial color="purple" transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[19.6, -3, -12.8]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("InFavor")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         {/* Against Paper Mesh */}
         <Tooltip message="Anthropomorphization of Machines" offset={[0, -4, 0]}>
-        <mesh
-          position={[19.6, -3.3, -12.8]}
-          rotation={[0, 5.65, 0]}
-          onClick={() => handlePaperClick("Against")}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-        >
-          <planeGeometry args={[2, 0.2]} />
-          <meshStandardMaterial color="purple"  transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[19.6, -3.3, -12.8]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("Against")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         {/* Formula Paper Mesh */}
         <Tooltip message="Quantifying Humanity" offset={[0, -4, 0]}>
-        <mesh
-          position={[19.3, -3.5, -12.3]}
-          rotation={[0, 5.65, 0]}
-          onClick={() => handlePaperClick("Formula")}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
+          <mesh
+            position={[19.3, -3.5, -12.3]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("Formula")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
+        {/* On Alice Mesh */}
+        <Tooltip message="Enigmatic Architect of Doubt" offset={[0, -4, 0]}>
+          <mesh
+            position={[19.3, -3.8, -12.2]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("OnAlice")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
+        {/* On Bob Mesh */}
+        <Tooltip
+          message="Rational Compass in the Labyrinth"
+          offset={[0, -4, 0]}
         >
-          <planeGeometry args={[2, 0.2]} />
-          <meshStandardMaterial color="purple" transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[19.1, -4, -11.9]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("OnBob")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         {/* Training Manual Paper Mesh */}
         <Tooltip message="Training Manual" offset={[0, -4, 0]}>
-        <mesh
-          position={[18, -3.9, -11]}
-          rotation={[0, 5.65, 0]}
-          onClick={() => handlePaperClick("TrainingManual")}
-          onPointerOver={() => (document.body.style.cursor = "pointer")}
-          onPointerOut={() => (document.body.style.cursor = "default")}
-        >
-          <planeGeometry args={[2, 0.2]} />
-          <meshStandardMaterial color="purple" transparent opacity={0} />
-        </mesh>
+          <mesh
+            position={[18, -3.9, -11]}
+            rotation={[0, 5.65, 0]}
+            onClick={() => handlePaperClick("TrainingManual")}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[2, 0.2]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
         </Tooltip>
 
         <OrbitControls
@@ -721,11 +824,17 @@ const MainScene: React.FC = () => {
 
       {activeNode && (
         <PuzzleModal
+          key={activeNode.id}
           isOpen={!!activeNode}
-          puzzle={activeNode.puzzle}
+          puzzle={{
+            id: String(activeNode.id),
+            question: activeNode.puzzle?.question || "",
+            correctAnswer: activeNode.puzzle?.correctAnswer || "",
+            options: activeNode.puzzle?.options || [], // Ensure options are passed
+          }}
           onClose={() => setActiveNode(null)}
           handleAnswer={handlePuzzleAnswer}
-          reportObservation={reportObservation} 
+          reportObservation={reportObservation}
           logToDevTools={(message) => addToDevToolLogs(message)}
         />
       )}
@@ -752,13 +861,17 @@ const MainScene: React.FC = () => {
       )}
       {showDashboardModal && (
         <DashboardModal
-          isOpen={showDashboardModal}
-          totalCorrect={totalCorrect}
-          totalIncorrect={totalIncorrect}
-          puzzlesCompleted={puzzlesCompleted}
-          turingTestResults={turingTestResults}
-          onClose={() => setShowDashboardModal(false)}
-        />
+        isOpen={showDashboardModal}
+        totalCorrect={totalCorrect}
+        totalIncorrect={totalIncorrect}
+        puzzlesCompleted={puzzlesCompleted}
+        turingTestResults={turingTestResults}
+        onOffStats={trainingStatsOnOff}
+        lightConnectionStats={trainingStatsLightConnection}
+        arcStats={{ success: arcStats?.success ?? false, attempts: arcStats?.attempts ?? 0 }}
+        slidingTileStats={{ completed: slidingTileStats?.completed ?? false, time: slidingTileStats?.time ?? 0 }}
+        onClose={() => setShowDashboardModal(false)}
+      />
       )}
       {showNotesDashboard && (
         <NotesDashboard
@@ -807,9 +920,13 @@ const MainScene: React.FC = () => {
         >
           <SlidingTileGame
             imageUrl="https://i.imgur.com/BRp9QVl.png"
+            onStart={() => setSlidingTileStartTime(Date.now())} // Set start time
             onComplete={() => {
               setShowSlidingTileModal(false);
-              alert("You solved the sliding puzzle!");
+              const endTime = Date.now();
+              const elapsedTime = slidingTileStartTime ? Math.floor((endTime - slidingTileStartTime) / 1000) : 0;
+              alert(`You solved the sliding puzzle in ${elapsedTime} seconds!`);
+              handleSlidingTileCompletion(true, elapsedTime);
             }}
           />
           <button
@@ -838,6 +955,19 @@ const MainScene: React.FC = () => {
           }}
         >
           <OnOrOffGame onComplete={handleOnOrOffCompletion} />
+        </div>
+      )}
+
+      {showLightConnectionModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20%",
+            left: "20%",
+            zIndex: 1000,
+          }}
+        >
+          <LightConnectionGame onComplete={handleLightConnectionCompletion} />
         </div>
       )}
 
