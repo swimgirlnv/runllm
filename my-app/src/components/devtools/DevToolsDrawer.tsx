@@ -4,10 +4,15 @@ interface DevToolsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   logs: string[];
-  setMode: (mode: "charliemode" | "rqwmode") => void; // Add prop to update mode
+  setMode: (mode: "charliemode" | "rqwmode") => void;
 }
 
-const DevToolsDrawer: React.FC<DevToolsDrawerProps> = ({ isOpen, onClose, logs, setMode }) => {
+const DevToolsDrawer: React.FC<DevToolsDrawerProps> = ({
+  isOpen,
+  onClose,
+  logs,
+  setMode,
+}) => {
   const [command, setCommand] = useState("");
 
   const handleCommandInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,6 +26,9 @@ const DevToolsDrawer: React.FC<DevToolsDrawerProps> = ({ isOpen, onClose, logs, 
     } else if (command === "/rqwmode") {
       setMode("rqwmode");
       logs.push("Switched to RQW mode");
+      logs.push(
+        `For more information click <a href="https://docs.google.com/document/d/e/2PACX-1vTWNRJIL8Ljp4xVLofsMqDXhDXwIvpHCcCaviZXBIVGJIdBqMKd8iYlDqxtSHeO29eF43jQ9EKTquHx/pub" target="_blank" style="color: #61dafb; text-decoration: underline;">here</a>.`
+      );
     } else {
       logs.push(`${command}`);
     }
@@ -63,16 +71,30 @@ const DevToolsDrawer: React.FC<DevToolsDrawerProps> = ({ isOpen, onClose, logs, 
         </button>
       </div>
       <div>
-        {logs.map((log, index) => (
-          <p
-            key={index}
-            style={{ color: log.includes("error") ? "red" : "lightgray" }}
-          >
-            {">"} {log}
-          </p>
-        ))}
+        {logs.map((log, index) =>
+          log.includes("<a") ? (
+            <p
+              key={index}
+              style={{ color: "lightgray" }}
+              dangerouslySetInnerHTML={{ __html: log }}
+            />
+          ) : (
+            <p
+              key={index}
+              style={{ color: log.includes("error") ? "red" : "lightgray" }}
+            >
+              {">"} {log}
+            </p>
+          )
+        )}
       </div>
-      <div style={{ marginTop: "20px", borderTop: "1px solid #444", paddingTop: "10px" }}>
+      <div
+        style={{
+          marginTop: "20px",
+          borderTop: "1px solid #444",
+          paddingTop: "10px",
+        }}
+      >
         <input
           type="text"
           value={command}
