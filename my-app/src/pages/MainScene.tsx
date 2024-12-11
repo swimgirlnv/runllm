@@ -30,6 +30,11 @@ import PaperModal from "../components/zones/PaperModal";
 import DevToolsDrawer from "../components/devtools/DevToolsDrawer";
 import Tooltip from "../components/ToolTip";
 import LightConnectionGame from "../components/herring/LightConnection";
+import PatternRecognitionGame from "../components/puzzles/PatternRecognition";
+import MoralDilemmaGame from "../components/puzzles/MoralDilema";
+import ConceptAssociationGame from "../components/puzzles/ConceptAssociation";
+import AmbiguousImageGame from "../components/puzzles/AmbiguousImage";
+import StoryCompletionGame from "../components/puzzles/StoryCompletion";
 
 export type GameState = "Act1" | "Act2" | "Act3" | "Act4";
 
@@ -93,11 +98,12 @@ const MainScene: React.FC = () => {
     trained: boolean;
   } | null>(null);
 
-  const [trainingStatsLightConnection, setTrainingStatsLightConnection] = useState<{
-    time: number;
-    ruleMatch: boolean;
-    trained: boolean;
-  } | null>(null);
+  const [trainingStatsLightConnection, setTrainingStatsLightConnection] =
+    useState<{
+      time: number;
+      ruleMatch: boolean;
+      trained: boolean;
+    } | null>(null);
 
   const [arcStats] = useState<{
     success: boolean;
@@ -160,9 +166,14 @@ const MainScene: React.FC = () => {
   };
 
   // Handlers for Sliding Tile Game
-  const [slidingTileStartTime, setSlidingTileStartTime] = useState<number | null>(null);
+  const [slidingTileStartTime, setSlidingTileStartTime] = useState<
+    number | null
+  >(null);
 
-  const handleSlidingTileCompletion = async (completed: boolean, time: number) => {
+  const handleSlidingTileCompletion = async (
+    completed: boolean,
+    time: number
+  ) => {
     setSlidingTileStats({ completed, time });
     const resultMessage = completed
       ? `Charlie completed the sliding tile puzzle in ${time}s.`
@@ -322,26 +333,6 @@ const MainScene: React.FC = () => {
     );
   };
 
-  // const generateNodePuzzle = async (node: Node) => {
-  //   const puzzle = await generatePuzzle(gameState);
-  //   if (!puzzle) return addChatMessage("System", "Puzzle generation failed.");
-  //   const shuffledOptions = shuffleArray([
-  //     puzzle.correctAnswer,
-  //     ...puzzle.incorrectAnswers,
-  //   ]);
-  //   const updatedNode = {
-  //     ...node,
-  //     puzzle: {
-  //       id: `puzzle-${Date.now()}`,
-  //       question: puzzle.question,
-  //       options: shuffledOptions,
-  //       correctAnswer: puzzle.correctAnswer,
-  //     },
-  //   };
-  //   setNodes((prev) => prev.map((n) => (n.id === node.id ? updatedNode : n)));
-  //   addChatMessage("System", `Puzzle ready for ${node.theme}.`);
-  // };
-
   const addDynamicNote = async (
     assistant: "alice" | "bob",
     context: string
@@ -422,14 +413,21 @@ const MainScene: React.FC = () => {
     attempts: number
   ) => {
     setShowGridGameModal(false);
-  
+
     if (isCorrect) {
       setTotalCorrect((prev) => prev + 1);
       setPuzzlesCompleted((prev) => prev + 1);
-      addChatMessage("System", `Grid task completed in ${time.toFixed(2)} seconds with ${attempts} attempts!`);
+      addChatMessage(
+        "System",
+        `Grid task completed in ${time.toFixed(
+          2
+        )} seconds with ${attempts} attempts!`
+      );
       await addDynamicNote(
         "alice",
-        `Charlie successfully solved a François Chollet measure of intelligence test in ${time.toFixed(2)} seconds and ${attempts} attempts.`
+        `Charlie successfully solved a François Chollet measure of intelligence test in ${time.toFixed(
+          2
+        )} seconds and ${attempts} attempts.`
       );
       await addDynamicNote(
         "bob",
@@ -449,7 +447,8 @@ const MainScene: React.FC = () => {
     }
   };
 
-  const [showLightConnectionModal, setShowLightConnectionModal] = useState(false);
+  const [showLightConnectionModal, setShowLightConnectionModal] =
+    useState(false);
 
   // LOAD SCREEN
   const [isLoaded, setIsLoaded] = useState(false);
@@ -489,6 +488,131 @@ const MainScene: React.FC = () => {
     setObservations((prev) => [...prev, observation]);
     console.log("Observation reported:", observation);
   };
+
+  // States for modals
+  const [showPatternGameModal, setShowPatternGameModal] = useState(false);
+  const [showMoralGameModal, setShowMoralGameModal] = useState(false);
+  const [showConceptGameModal, setShowConceptGameModal] = useState(false);
+  const [showAmbiguousImageModal, setShowAmbiguousImageModal] = useState(false);
+  const [showStoryCompletionModal, setShowStoryCompletionModal] =
+    useState(false);
+
+  // Completion handlers
+  const handlePatternGameCompletion = async (isCorrect: boolean) => {
+    setShowPatternGameModal(false);
+    if (isCorrect) {
+      await addDynamicNote(
+        "alice",
+        "Charlie correctly identified a pattern. Their reasoning suggests they are capable of recognizing logical progressions."
+      );
+      await addDynamicNote(
+        "bob",
+        "Charlie solved a pattern recognition puzzle. Does this indicate a human-like understanding of sequences, or a model's learned behavior?"
+      );
+    } else {
+      await addDynamicNote(
+        "alice",
+        "Charlie struggled with a pattern puzzle. Could this reveal a gap in their cognitive processing?"
+      );
+      await addDynamicNote(
+        "bob",
+        "Charlie failed a pattern recognition challenge. Even humans falter with abstract logic sometimes."
+      );
+    }
+  };
+
+  const handleMoralGameCompletion = async (choice: string) => {
+    setShowMoralGameModal(false);
+    await addDynamicNote(
+      "alice",
+      `Charlie chose "${choice}" in a moral dilemma. What does this reveal about their ethical framework?`
+    );
+    await addDynamicNote(
+      "bob",
+      `Charlie faced a moral challenge and opted for "${choice}". Is this decision grounded in human values or logical processing?`
+    );
+  };
+
+  const handleConceptGameCompletion = async (isCorrect: boolean) => {
+    setShowConceptGameModal(false);
+  
+    // Update metrics
+    setConceptGameStats((prev) => ({
+      correct: (prev?.correct ?? 0) + (isCorrect ? 1 : 0),
+      totalAttempts: (prev?.totalAttempts ?? 0) + 1,
+    }));
+  
+    if (isCorrect) {
+      setTotalCorrect((prev) => prev + 1);
+      setPuzzlesCompleted((prev) => prev + 1);
+  
+      await addDynamicNote(
+        "alice",
+        "Charlie successfully identified a conceptual link between two ideas. This suggests abstract thinking and insight."
+      );
+      await addDynamicNote(
+        "bob",
+        "Charlie solved a concept association challenge. Does this showcase creativity, or an algorithm's approximation of it?"
+      );
+  
+      addChatMessage(
+        "System",
+        "Concept Game completed successfully! Well done."
+      );
+    } else {
+      setTotalIncorrect((prev) => prev + 1);
+  
+      await addDynamicNote(
+        "alice",
+        "Charlie struggled to link two concepts. Is this indicative of a limited abstraction capability, or just human error?"
+      );
+      await addDynamicNote(
+        "bob",
+        "Charlie failed to make an association. Humans sometimes misinterpret creative connections too."
+      );
+  
+      addChatMessage("System", "Concept Game failed. Try again!");
+    }
+  };
+
+  const handleAmbiguousImageCompletion = async (interpretation: string) => {
+    setShowAmbiguousImageModal(false);
+    setAmbiguousImageStats((prev) => ({
+      attempts: (prev?.attempts ?? 0) + 1,
+      interpretations: [...(prev?.interpretations ?? []), interpretation],
+    }));
+    await addDynamicNote(
+      "alice",
+      `Charlie described an ambiguous image as "${interpretation}". What does this reveal about their subjective perspective?`
+    );
+    await addDynamicNote(
+      "bob",
+      `Charlie's interpretation of an ambiguous shape was "${interpretation}". Is this more human insight, or modeled creativity?`
+    );
+  };
+
+  const handleStoryCompletion = async (story: string) => {
+    setShowStoryCompletionModal(false);
+    await addDynamicNote(
+      "alice",
+      `Charlie completed a story: "${story}". Their narrative choices suggest a fascinating interplay of logic and creativity.`
+    );
+    await addDynamicNote(
+      "bob",
+      `Charlie's story ending was "${story}". Does this showcase human imagination, or a trained model's mimicry?`
+    );
+  };
+
+  const [ambiguousImageStats, setAmbiguousImageStats] = useState<{
+    attempts: number;
+    interpretations: string[];
+  } | null>(null);
+
+  const [conceptGameStats, setConceptGameStats] = useState<{
+    correct: number;
+    totalAttempts: number;
+  } | null>(null);
+
 
   return (
     <>
@@ -650,6 +774,76 @@ const MainScene: React.FC = () => {
             onClick={() => setShowLightConnectionModal(true)} // Open modal on click
           >
             <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial color="purple" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
+        {/* Pattern Recognition */}
+        <Tooltip message="Pattern Recognition Game" offset={[0, -4, 0]}>
+          <mesh
+            position={[3.7, -1.9, -11]} // Adjust the position as needed
+            rotation={[5.5, 0, 0]}
+            onClick={() => setShowPatternGameModal(true)}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial color="yellow" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
+        {/* Moral Dilemma */}
+        <Tooltip message="Moral Dilemma Game" offset={[0, -4, 0]}>
+          <mesh
+            position={[5.1, -1.9, -11]} // Adjust the position as needed
+            rotation={[5.5, 0, 0]}
+            onClick={() => setShowMoralGameModal(true)}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial color="blue" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
+        {/* Concept Association */}
+        <Tooltip message="Concept Association Game" offset={[0, -4, 0]}>
+          <mesh
+            position={[6.8, -1.9, -11]} // Adjust the position as needed
+            rotation={[5.5, 0, 0]}
+            onClick={() => setShowConceptGameModal(true)}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial color="red" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
+        {/* Ambiguous Image */}
+        <Tooltip message="Ambiguous Image Game" offset={[0, -4, 0]}>
+          <mesh
+            position={[0.3, -0.2, -13]} // Adjust the position as needed
+            rotation={[5.5, 0, 0]}
+            onClick={() => setShowAmbiguousImageModal(true)}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[0.7, 0.7]} />
+            <meshStandardMaterial color="green" transparent opacity={0} />
+          </mesh>
+        </Tooltip>
+
+        {/* Story Completion */}
+        <Tooltip message="Story Completion Game" offset={[0, -4, 0]}>
+          <mesh
+            position={[6.8, -0.7, -12]} // Adjust the position as needed
+            rotation={[5.5, 0, 0]}
+            onClick={() => setShowStoryCompletionModal(true)}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "default")}
+          >
+            <planeGeometry args={[0.7, 0.7]} />
             <meshStandardMaterial color="purple" transparent opacity={0} />
           </mesh>
         </Tooltip>
@@ -861,17 +1055,31 @@ const MainScene: React.FC = () => {
       )}
       {showDashboardModal && (
         <DashboardModal
-        isOpen={showDashboardModal}
-        totalCorrect={totalCorrect}
-        totalIncorrect={totalIncorrect}
-        puzzlesCompleted={puzzlesCompleted}
-        turingTestResults={turingTestResults}
-        onOffStats={trainingStatsOnOff}
-        lightConnectionStats={trainingStatsLightConnection}
-        arcStats={{ success: arcStats?.success ?? false, attempts: arcStats?.attempts ?? 0 }}
-        slidingTileStats={{ completed: slidingTileStats?.completed ?? false, time: slidingTileStats?.time ?? 0 }}
-        onClose={() => setShowDashboardModal(false)}
-      />
+          isOpen={showDashboardModal}
+          totalCorrect={totalCorrect}
+          totalIncorrect={totalIncorrect}
+          puzzlesCompleted={puzzlesCompleted}
+          turingTestResults={turingTestResults}
+          onOffStats={trainingStatsOnOff}
+          lightConnectionStats={trainingStatsLightConnection}
+          arcStats={{
+            success: arcStats?.success ?? false,
+            attempts: arcStats?.attempts ?? 0,
+          }}
+          slidingTileStats={{
+            completed: slidingTileStats?.completed ?? false,
+            time: slidingTileStats?.time ?? 0,
+          }}
+          ambiguousImageStats={{
+            attempts: ambiguousImageStats?.attempts ?? 0,
+            interpretations: ambiguousImageStats?.interpretations ?? [],
+          }}
+          conceptGameStats={{
+            correct: conceptGameStats?.correct ?? 0,
+            totalAttempts: conceptGameStats?.totalAttempts ?? 0,
+          }}
+          onClose={() => setShowDashboardModal(false)}
+        />
       )}
       {showNotesDashboard && (
         <NotesDashboard
@@ -924,7 +1132,9 @@ const MainScene: React.FC = () => {
             onComplete={() => {
               setShowSlidingTileModal(false);
               const endTime = Date.now();
-              const elapsedTime = slidingTileStartTime ? Math.floor((endTime - slidingTileStartTime) / 1000) : 0;
+              const elapsedTime = slidingTileStartTime
+                ? Math.floor((endTime - slidingTileStartTime) / 1000)
+                : 0;
               alert(`You solved the sliding puzzle in ${elapsedTime} seconds!`);
               handleSlidingTileCompletion(true, elapsedTime);
             }}
@@ -977,6 +1187,161 @@ const MainScene: React.FC = () => {
           paperContent={currentPaper}
           onClose={() => setShowPaperModal(false)}
         />
+      )}
+
+      {showPatternGameModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          }}
+        >
+          <PatternRecognitionGame
+            onComplete={(isCorrect) => {
+              handlePatternGameCompletion(isCorrect);
+            }}
+          />
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "10px",
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowPatternGameModal(false)}
+          >
+            Close
+          </button>
+        </div>
+      )}
+      {showMoralGameModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          }}
+        >
+          <MoralDilemmaGame onComplete={handleMoralGameCompletion} />
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "10px",
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowMoralGameModal(false)}
+          >
+            Close
+          </button>
+        </div>
+      )}
+      {showConceptGameModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          }}
+        >
+          <ConceptAssociationGame onComplete={handleConceptGameCompletion} />
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "10px",
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowConceptGameModal(false)}
+          >
+            Close
+          </button>
+        </div>
+      )}
+      {showAmbiguousImageModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          }}
+        >
+          <AmbiguousImageGame onComplete={handleAmbiguousImageCompletion} />
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "10px",
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowAmbiguousImageModal(false)}
+          >
+            Close
+          </button>
+        </div>
+      )}
+      {showStoryCompletionModal && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          }}
+        >
+          <StoryCompletionGame onComplete={handleStoryCompletion} />
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "10px",
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowStoryCompletionModal(false)}
+          >
+            Close
+          </button>
+        </div>
       )}
 
       <DevToolsDrawer

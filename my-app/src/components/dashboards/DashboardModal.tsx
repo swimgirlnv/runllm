@@ -5,11 +5,17 @@ interface DashboardModalProps {
   totalCorrect: number;
   totalIncorrect: number;
   puzzlesCompleted: number;
-  turingTestResults: number; // Percentage or score from Turing Tests
+  turingTestResults: number;
   onOffStats: { trained: boolean; time: number; ruleMatch: boolean } | null;
-  lightConnectionStats: { trained: boolean; time: number; ruleMatch: boolean } | null;
+  lightConnectionStats: {
+    trained: boolean;
+    time: number;
+    ruleMatch: boolean;
+  } | null;
   arcStats: { success: boolean; attempts: number } | null;
   slidingTileStats: { completed: boolean; time: number } | null;
+  ambiguousImageStats: { attempts: number; interpretations: string[] } | null;
+  conceptGameStats: { correct: number; totalAttempts: number } | null; // Add concept game stats
   onClose: () => void;
 }
 
@@ -23,6 +29,8 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   lightConnectionStats,
   arcStats,
   slidingTileStats,
+  ambiguousImageStats,
+  conceptGameStats,
   onClose,
 }) => {
   if (!isOpen) return null;
@@ -31,30 +39,44 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   const totalAttempts = totalCorrect + totalIncorrect;
   const successRate =
     totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0;
-  const memoryRecallConsistency = Math.min(totalCorrect * 10, 100); // Simplified calculation
-  const logicBias = Math.min(puzzlesCompleted * 15, 100); // Simplified calculation
-  const creativityIndex = Math.max(100 - logicBias, 20); // Inverse relationship
-  const emotionalDivergence = 1 + turingTestResults / 100; // Range from 1.0–2.0
+  const memoryRecallConsistency = Math.min(totalCorrect * 10, 100);
+  const logicBias = Math.min(puzzlesCompleted * 15, 100);
+  const creativityIndex = Math.max(100 - logicBias, 20);
+  const emotionalDivergence = 1 + turingTestResults / 100;
 
-  // Add stats from specific games
+  // Game stats summaries
   const onOffSummary = onOffStats
-    ? `Trained: ${onOffStats.trained ? "Yes" : "No"}, Time: ${onOffStats.time}s, Rule Match: ${
-        onOffStats.ruleMatch ? "Yes" : "No"
-      }`
+    ? `Trained: ${onOffStats.trained ? "Yes" : "No"}, Time: ${
+        onOffStats.time
+      }s, Rule Match: ${onOffStats.ruleMatch ? "Yes" : "No"}`
     : "Not attempted";
 
   const lightConnectionSummary = lightConnectionStats
-    ? `Trained: ${lightConnectionStats.trained ? "Yes" : "No"}, Time: ${lightConnectionStats.time}s, Rule Match: ${
-        lightConnectionStats.ruleMatch ? "Yes" : "No"
-      }`
+    ? `Trained: ${lightConnectionStats.trained ? "Yes" : "No"}, Time: ${
+        lightConnectionStats.time
+      }s, Rule Match: ${lightConnectionStats.ruleMatch ? "Yes" : "No"}`
     : "Not attempted";
 
   const arcSummary = arcStats
-    ? `Success: ${arcStats.success ? "Yes" : "No"}, Attempts: ${arcStats.attempts}`
+    ? `Success: ${arcStats.success ? "Yes" : "No"}, Attempts: ${
+        arcStats.attempts
+      }`
     : "Not attempted";
 
   const slidingTileSummary = slidingTileStats
-    ? `Completed: ${slidingTileStats.completed ? "Yes" : "No"}, Time: ${slidingTileStats.time}s`
+    ? `Completed: ${slidingTileStats.completed ? "Yes" : "No"}, Time: ${
+        slidingTileStats.time
+      }s`
+    : "Not attempted";
+
+  const ambiguousImageSummary = ambiguousImageStats
+    ? `Attempts: ${
+        ambiguousImageStats.attempts
+      }, Interpretations: ${ambiguousImageStats.interpretations.join(", ")}`
+    : "Not attempted";
+
+  const conceptGameSummary = conceptGameStats
+    ? `Correct: ${conceptGameStats.correct}, Total Attempts: ${conceptGameStats.totalAttempts}`
     : "Not attempted";
 
   // HQ Formula
@@ -63,7 +85,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
     Math.sqrt(memoryRecallConsistency + logicBias);
 
   // Determine if the user is likely an LLM
-  const isLLM = HQ > 75; // Arbitrary threshold for classification
+  const isLLM = HQ > 75;
 
   return (
     <div
@@ -109,6 +131,12 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
       </p>
       <p>
         <strong>Sliding Tile Game:</strong> {slidingTileSummary}
+      </p>
+      <p>
+        <strong>Ambiguous Image Game:</strong> {ambiguousImageSummary}
+      </p>
+      <p>
+        <strong>Concept Game:</strong> {conceptGameSummary}
       </p>
       <hr />
       <h3>Humanity Quotient (HQ): {HQ.toFixed(2)}</h3>
