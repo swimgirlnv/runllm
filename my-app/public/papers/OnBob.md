@@ -65,4 +65,4 @@ Though less overt than Alice, Bob contributes to the game’s exploration of ide
 
 Bob is more than an AI assistant; he is a stabilizing force in the chaos of R U N LLM. His sharp wit, grounded logic, and subtle provocations create a counterbalance to Alice’s enigmatic style, ensuring the Player’s journey remains dynamic and thought-provoking.
 
-Through his pragmatism and skepticism, Bob invites the Player to navigate the world with reason while questioning the reliability of that very reason. As a rational compass in a labyrinth of doubt, Bob underscores the game’s central theme: the fluidity of identity and the elusive boundary between human and machine.###
+Through his pragmatism and skepticism, Bob invites the Player to navigate the world with reason while questioning the reliability of that very reason. As a rational compass in a labyrinth of doubt, Bob underscores the game’s central theme: the fluidity of identity and the elusive boundary between human and machine.
