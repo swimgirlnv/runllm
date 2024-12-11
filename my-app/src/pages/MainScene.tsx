@@ -535,17 +535,17 @@ const MainScene: React.FC = () => {
 
   const handleConceptGameCompletion = async (isCorrect: boolean) => {
     setShowConceptGameModal(false);
-  
+
     // Update metrics
     setConceptGameStats((prev) => ({
       correct: (prev?.correct ?? 0) + (isCorrect ? 1 : 0),
       totalAttempts: (prev?.totalAttempts ?? 0) + 1,
     }));
-  
+
     if (isCorrect) {
       setTotalCorrect((prev) => prev + 1);
       setPuzzlesCompleted((prev) => prev + 1);
-  
+
       await addDynamicNote(
         "alice",
         "Charlie successfully identified a conceptual link between two ideas. This suggests abstract thinking and insight."
@@ -554,14 +554,14 @@ const MainScene: React.FC = () => {
         "bob",
         "Charlie solved a concept association challenge. Does this showcase creativity, or an algorithm's approximation of it?"
       );
-  
+
       addChatMessage(
         "System",
         "Concept Game completed successfully! Well done."
       );
     } else {
       setTotalIncorrect((prev) => prev + 1);
-  
+
       await addDynamicNote(
         "alice",
         "Charlie struggled to link two concepts. Is this indicative of a limited abstraction capability, or just human error?"
@@ -570,7 +570,7 @@ const MainScene: React.FC = () => {
         "bob",
         "Charlie failed to make an association. Humans sometimes misinterpret creative connections too."
       );
-  
+
       addChatMessage("System", "Concept Game failed. Try again!");
     }
   };
@@ -613,6 +613,75 @@ const MainScene: React.FC = () => {
     totalAttempts: number;
   } | null>(null);
 
+  const paperHQRequirements: { [key: string]: number } = {
+    OnOff: 50,
+    SlidingTile: 60,
+    ARC: 70,
+    InFavor: 80,
+    Against: 90,
+    Formula: 95,
+    OnAlice: 85,
+    OnBob: 75,
+  };
+
+  const getTooltipMessage = (paper: string): string => {
+    const messages: { [key: string]: string } = {
+      OnOff: "Evaluating the On/Off Game",
+      SlidingTile: "Evaluating Sliding Tile Puzzles",
+      ARC: "On the Measure of Intelligence",
+      InFavor: "Distinguishing the Human Mind",
+      Against: "Anthropomorphization of Machines",
+      Formula: "Quantifying Humanity",
+      OnAlice: "Enigmatic Architect of Doubt",
+      OnBob: "Rational Compass in the Labyrinth",
+    };
+    return messages[paper] || "Research Paper";
+  };
+
+  const getPaperPosition = (paper: string): [number, number, number] => {
+    const positions: { [key: string]: [number, number, number] } = {
+      OnOff: [-2.4, -1.7, -11],
+      SlidingTile: [19.4, -2.2, -13],
+      ARC: [19.6, -2.8, -13],
+      InFavor: [19.6, -3, -12.8],
+      Against: [19.6, -3.3, -12.8],
+      Formula: [19.3, -3.5, -12.3],
+      OnAlice: [19.3, -3.8, -12.2],
+      OnBob: [19.1, -4, -11.9],
+    };
+    return positions[paper] || [0, 0, 0];
+  };
+
+  const getPaperRotation = (paper: string): [number, number, number] => {
+    const rotations: { [key: string]: [number, number, number] } = {
+      OnOff: [5.5, 0, 0],
+      SlidingTile: [0, 5.65, 0],
+      ARC: [0, 5.65, 0],
+      InFavor: [0, 5.65, 0],
+      Against: [0, 5.65, 0],
+      Formula: [0, 5.65, 0],
+      OnAlice: [0, 5.65, 0],
+      OnBob: [0, 5.65, 0],
+    };
+    return rotations[paper] || [0, 0, 0];
+  };
+
+  const calculateHQ = () => {
+    const totalAttempts = totalCorrect + totalIncorrect;
+    const successRate =
+      totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0;
+    const memoryRecallConsistency = Math.min(totalCorrect * 10, 100);
+    const logicBias = Math.min(puzzlesCompleted * 15, 100);
+    const creativityIndex = Math.max(100 - logicBias, 20);
+    const emotionalDivergence = 1 + turingTestResults / 100;
+
+    return (
+      ((creativityIndex ** 2 + successRate) * emotionalDivergence) /
+      Math.sqrt(memoryRecallConsistency + logicBias)
+    );
+  };
+
+  const HQ = calculateHQ();
 
   return (
     <>
@@ -860,148 +929,37 @@ const MainScene: React.FC = () => {
           <meshStandardMaterial color="blue" transparent opacity={0} />
         </mesh>
 
-        {/* On/Off Paper Mesh */}
-        <Tooltip message="On/Off Game" offset={[0, -4, 0]}>
-          <mesh
-            position={[-2.4, -1.7, -11]}
-            rotation={[5.5, 0, 0]}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-            onClick={() => setShowOnOrOffModal(true)}
+        {Object.entries(paperHQRequirements).map(([paper, requiredHQ]) => (
+          <Tooltip
+            key={paper}
+            message={getTooltipMessage(paper)}
+            offset={[0, -4, 0]}
           >
-            <planeGeometry args={[1, 1]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* Sliding Tile Paper Mesh */}
-        <Tooltip message="Evaluating Sliding Tile Puzzles" offset={[0, -4, 0]}>
-          <mesh
-            position={[19.4, -2.2, -13]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("SlidingTile")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* On/Off Paper Mesh */}
-        <Tooltip message="Evaluating the On/Off Game" offset={[0, -4, 0]}>
-          <mesh
-            position={[19.4, -2.5, -13]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("OnOff")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* ARC Paper Mesh */}
-        <Tooltip message="On the Measure of Intelligence" offset={[0, -4, 0]}>
-          <mesh
-            position={[19.6, -2.8, -13]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("ARC")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* In Favor Paper Mesh */}
-        <Tooltip message="Distinguishing the Human Mind" offset={[0, -4, 0]}>
-          <mesh
-            position={[19.6, -3, -12.8]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("InFavor")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* Against Paper Mesh */}
-        <Tooltip message="Anthropomorphization of Machines" offset={[0, -4, 0]}>
-          <mesh
-            position={[19.6, -3.3, -12.8]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("Against")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* Formula Paper Mesh */}
-        <Tooltip message="Quantifying Humanity" offset={[0, -4, 0]}>
-          <mesh
-            position={[19.3, -3.5, -12.3]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("Formula")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* On Alice Mesh */}
-        <Tooltip message="Enigmatic Architect of Doubt" offset={[0, -4, 0]}>
-          <mesh
-            position={[19.3, -3.8, -12.2]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("OnAlice")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* On Bob Mesh */}
-        <Tooltip
-          message="Rational Compass in the Labyrinth"
-          offset={[0, -4, 0]}
-        >
-          <mesh
-            position={[19.1, -4, -11.9]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("OnBob")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
-
-        {/* Training Manual Paper Mesh */}
-        <Tooltip message="Training Manual" offset={[0, -4, 0]}>
-          <mesh
-            position={[18, -3.9, -11]}
-            rotation={[0, 5.65, 0]}
-            onClick={() => handlePaperClick("TrainingManual")}
-            onPointerOver={() => (document.body.style.cursor = "pointer")}
-            onPointerOut={() => (document.body.style.cursor = "default")}
-          >
-            <planeGeometry args={[2, 0.2]} />
-            <meshStandardMaterial color="purple" transparent opacity={0} />
-          </mesh>
-        </Tooltip>
+            <mesh
+              position={getPaperPosition(paper)}
+              rotation={getPaperRotation(paper)}
+              onPointerOver={() => {
+                document.body.style.cursor =
+                  HQ <= requiredHQ ? "pointer" : "default";
+              }}
+              onPointerOut={() => {
+                document.body.style.cursor = "default";
+              }}
+              onClick={() => {
+                if (HQ <= requiredHQ) {
+                  handlePaperClick(paper);
+                } else {
+                  alert(
+                    `You do not have access to this paper.`
+                  );
+                }
+              }}
+            >
+              <planeGeometry args={[1, 1]} />
+              <meshStandardMaterial color="purple" transparent opacity={0} />
+            </mesh>
+          </Tooltip>
+        ))}
 
         <OrbitControls
           enablePan={false}

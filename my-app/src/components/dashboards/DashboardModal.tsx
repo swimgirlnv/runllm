@@ -91,7 +91,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
     <div
       style={{
         position: "absolute",
-        top: "10%",
+        top: "3%",
         left: "50%",
         transform: "translate(-50%, 0)",
         backgroundColor: "white",
@@ -99,7 +99,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
         borderRadius: "8px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
         zIndex: 10,
-        width: "400px",
+        width: "800px",
       }}
     >
       <h2>Dashboard</h2>
