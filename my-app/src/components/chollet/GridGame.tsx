@@ -61,8 +61,8 @@ const trainingTasks = [
     ],
     expectedOutput: [
       ["blue", "blue", "blue", "blue"],
-      ["blue", "red", "red", "blue"],
-      ["blue", "red", "red", "blue"],
+      ["blue", "black", "black", "blue"],
+      ["blue", "black", "black", "blue"],
       ["blue", "blue", "blue", "blue"],
     ],
   },
